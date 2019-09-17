@@ -1,0 +1,4 @@
+#忽略devel和build文件夹
+
+build/
+devel/
