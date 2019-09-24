@@ -1,18 +1,108 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(beginner_tutorials)
+project(qt_app)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  rospy
   std_msgs
   message_generation
+  geometry_msgs
 )
+
+find_package(Qt5  REQUIRED COMPONENTS  Widgets)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+#  include
+)
+
+set(SOURCES
+  src/main.cpp
+  src/mainwindow.cpp
+  src/mainwindow.h
+  src/CustomButton.cpp
+  src/CustomButton.h
+)
+
+set(FORMS
+  src/mainwindow.ui
+)
+
+## Generate messages in the 'msg' folder
+add_message_files(
+   FILES
+   turtle.msg
+#   Message2.msg
+ )
+
+## Generate services in the 'srv' folder
+# add_service_files(
+#   FILES
+#   Service1.srv
+#   Service2.srv
+# )
+
+## Generate added messages and services with any dependencies listed here
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+)
+
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES qt_app
+  CATKIN_DEPENDS roscpp std_msgs message_runtime
+#  DEPENDS system_lib
+)
+
+add_executable(${PROJECT_NAME}_node ${SOURCES} ${FORMS})
+#add_executable(talker_node src/talker.cpp)
+#add_executable(listener_node src/listener.cpp)
+
+## Specify libraries to link a library or executable target against
+target_link_libraries(${PROJECT_NAME}_node
+  ${catkin_LIBRARIES}
+  Qt5::Widgets
+)
+
+## Declare a C++ library
+# add_library(${PROJECT_NAME}
+#   src/${PROJECT_NAME}/qt_app.cpp
+# )
+
+## Add cmake target dependencies of the library
+## as an example, code may need to be generated before libraries
+## either from message generation or dynamic reconfigure
+# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+
+
+# add_dependencies(listener_node qt_app_generate_message_cpp)
+
+#target_link_libraries(talker_node ${catkin_LIBRARIES})
+#target_link_libraries(listener_node ${catkin_LIBRARIES})
+
+## Rename C++ executable without prefix
+## The above recommended prefix causes long target names, the following renames the
+## target back to the shorter version for ease of user use
+## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
+# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
+
+## Add cmake target dependencies of the executable
+## same as for the library above
+# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -47,17 +137,7 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
-## Generate messages in the 'msg' folder
- add_message_files(
-   FILES
-   Num.msg
- )
 
-## Generate services in the 'srv' folder
- add_service_files(
-   FILES
-   AddTwoInts.srv
- )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -65,12 +145,6 @@ find_package(catkin REQUIRED COMPONENTS
 #   Action1.action
 #   Action2.action
 # )
-
-## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   std_msgs
- )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -101,12 +175,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES beginner_tutorials
-   CATKIN_DEPENDS message_runtime
-#  DEPENDS system_lib
-)
+
 
 ###########
 ## Build ##
@@ -114,48 +183,7 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
-)
 
-## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/beginner_tutorials.cpp
-# )
-
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Declare a C++ executable
-## With catkin_make all packages are built within a single CMake context
-## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/beginner_tutorials_node.cpp)
-
-add_executable(talker src/talker.cpp)
-add_executable(listener src/listener.cpp)
-
-add_dependencies(listener beginner_tutorials_generate_message_cpp)
-
-target_link_libraries(talker ${catkin_LIBRARIES})
-target_link_libraries(listener ${catkin_LIBRARIES})
-
-## Rename C++ executable without prefix
-## The above recommended prefix causes long target names, the following renames the
-## target back to the shorter version for ease of user use
-## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
-# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
-
-## Add cmake target dependencies of the executable
-## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
 
 #############
 ## Install ##
@@ -204,7 +232,7 @@ target_link_libraries(listener ${catkin_LIBRARIES})
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_beginner_tutorials.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_qt_app.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
