@@ -104,23 +104,6 @@ void CustomButton::setAxesVertical(bool axesVertical)
     centerRoundPath.addEllipse(QPoint(0, 0), m_radius - m_arcLength+2, m_radius - m_arcLength+2);
     m_arcPathList.append(centerRoundPath);
     m_colorList.append(QColor(255, 255, 255));
-
-
-    // 添加文字;
-    QFont font;
-    font.setFamily("Microsoft YaHei");
-    font.setPointSize(14);
-
-    for (int i = 0; i < m_arcPathList.count(); i++)
-    {
-        QPainterPath painterPath;
-        m_textPathList.append(painterPath);
-    }
-
-    mStrUp = QStringLiteral("小臂上仰");
-    mStrLeft = QStringLiteral("手动收线");
-    mStrDown = QStringLiteral("小臂下附");
-    mStrRight = QStringLiteral("手动放线");
     update();
 }
 
@@ -148,11 +131,6 @@ void CustomButton::initButton()
         QPainterPath painterPath;
         m_textPathList.append(painterPath);
     }
-
-    mStrUp = QStringLiteral("小臂上仰");
-    mStrLeft = QStringLiteral("手动收线");
-    mStrDown = QStringLiteral("小臂下附");
-    mStrRight = QStringLiteral("手动放线");
 }
 
 void CustomButton::paintEvent(QPaintEvent *)
@@ -253,118 +231,6 @@ void CustomButton::paintEvent(QPaintEvent *)
             painter.drawPixmap(30,-30,30,60,mDegreePixmap);
         }
     }
-
-    QFont font;
-    font.setFamily("Microsoft YaHei");
-    font.setPointSize(12);
-    painter.setFont(font);
-    painter.setPen(QColor(170,170,170));
-
-    if(mAxesVertical == true){
-        painter.drawText(QPoint(-60,-40),mStrUp);
-        painter.drawText(QPoint(30,-40),mStrLeft);
-
-        painter.drawText(QPoint(-80,40),mStrDown);
-        painter.drawText(QPoint(20,40),mStrRight);
-    }else{
-        //m_bTextModeEn = true;
-        QFontMetrics fm(font);
-        int  rText = 65;
-
-        int iTotalWidth;
-        int nWidth;
-        //行高空隙去除，-3或-4
-        int nHeight = fm.height() - 4;
-
-        //上方文字最简单
-        iTotalWidth = fm.width(mStrUp);
-        painter.save();
-        painter.rotate(-90 * iTotalWidth / (rText * M_PI));
-        for(int i = 0;i < mStrUp.size();i++)
-        {
-            //旋转一半，写文字，剩下一半再旋转
-            nWidth = fm.width(mStrUp.at(i));
-            painter.rotate(90 * nWidth / (rText * M_PI));
-            painter.drawText(-nWidth / 2, -1 * rText, mStrUp.at(i));
-            painter.rotate(90 * nWidth / (rText * M_PI));
-        }
-        painter.restore();
-
-        //右侧文字，中文竖着，英文朝圆外
-
-        painter.save();
-        if (m_bTextModeEn)
-        {
-            iTotalWidth = fm.width(mStrRight);
-            painter.rotate(90 - 90 * iTotalWidth / (rText * M_PI));
-            for (int i = 0; i < mStrRight.size(); i++)
-            {
-                nWidth = fm.width(mStrRight.at(i));
-                painter.rotate(90 * nWidth / (rText * M_PI));
-                painter.drawText(-nWidth / 2, -1 * rText, mStrRight.at(i));
-                painter.rotate(90 * nWidth / (rText * M_PI));
-            }
-        }
-        else
-        {
-            iTotalWidth = nHeight*mStrRight.size();
-            painter.rotate(-90 * iTotalWidth / (rText * M_PI));
-            for (int i = 0; i < mStrRight.size(); i++)
-            {
-
-                painter.rotate(90 * nHeight / (rText * M_PI));
-                //文字左右微调 -5
-                painter.drawText(rText-5, nHeight / 2, mStrRight.at(i));
-                painter.rotate(90 * nHeight / (rText * M_PI));
-            }
-        }
-        painter.restore();
-
-        //下方文字也简单，大家都一致
-        painter.save();
-        iTotalWidth = fm.width(mStrDown);
-        painter.rotate(90 * iTotalWidth / (rText * M_PI));
-        for (int i = 0; i < mStrDown.size(); i++)
-        {
-            nWidth = fm.width(mStrDown.at(i));
-            painter.rotate(-90 * nWidth / (rText * M_PI));
-            //文字上下微调 -8
-            painter.drawText(-nWidth / 2, rText + nHeight-8, mStrDown.at(i));
-            painter.rotate(-90 * nWidth / (rText * M_PI));
-        }
-        painter.restore();
-
-        //左侧文字，中文朝上，英文朝内
-        painter.save();
-        if (m_bTextModeEn)
-        {
-            iTotalWidth = fm.width(mStrLeft);
-            painter.rotate(90 + 90 * iTotalWidth / (rText * M_PI));
-            for (int i = 0; i < mStrLeft.size(); i++)
-            {
-                nWidth = fm.width(mStrLeft.at(i));
-                painter.rotate(-90 * nWidth / (rText * M_PI));
-                painter.drawText(-nWidth / 2, rText+nHeight-8, mStrLeft.at(i));
-                painter.rotate(-90 * nWidth / (rText * M_PI));
-            }
-        }
-        else
-        {
-            iTotalWidth = nHeight*mStrLeft.size();
-            painter.rotate(90 * iTotalWidth / (rText * M_PI));
-            for (int i = 0; i < mStrLeft.size(); i++)
-            {
-                painter.rotate(-90 * nHeight / (rText * M_PI));
-                //文字左右微调 -10
-                painter.drawText(-rText-10, nHeight / 2, mStrLeft.at(i));
-                painter.rotate(-90 * nHeight / (rText * M_PI));
-            }
-        }
-        painter.restore();
-    }
-
-
-
 }
 
 void CustomButton::addArc(int x, int y, int startAngle, int angleLength, QColor color)
