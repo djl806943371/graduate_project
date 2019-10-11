@@ -8,11 +8,12 @@
 #include <QLabel>
 #include "command.h"
 #include "crc.h"
-
+#include <QTimer>
 
 //class QLabel;
 
-namespace Ui {
+namespace Ui
+{
 class MainWindow;
 }
 
@@ -44,6 +45,11 @@ private slots:
 
     void on_applyButton_clicked();
 
+    void on_rocker_signalButtonMoved(int degree, int angle);
+
+    void on_rocker_signalButtonReleased();
+    void on_rocker_signalButtonClicked();
+
 private:
     Ui::MainWindow *ui;
     int argc1;
@@ -53,6 +59,8 @@ private:
     SettingsDialog *m_settings = nullptr;
     QSerialPort *m_serial = nullptr;
     QLabel *m_status = nullptr;
+    QTimer *m_timer = nullptr;
+    int m_degree, m_angle;
 
     virtual void closeEvent(QCloseEvent *event);
 

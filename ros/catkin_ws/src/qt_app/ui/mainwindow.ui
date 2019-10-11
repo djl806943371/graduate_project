@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1000</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -92,17 +92,26 @@
    <widget class="CustomButton" name="rocker">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>20</x>
       <y>320</y>
-      <width>201</width>
-      <height>191</height>
+      <width>250</width>
+      <height>250</height>
      </rect>
+    </property>
+    <property name="autoRepeat" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="autoRepeatDelay" stdset="0">
+     <number>300</number>
+    </property>
+    <property name="autoRepeatInterval" stdset="0">
+     <number>200</number>
     </property>
    </widget>
    <widget class="QPushButton" name="goFront">
     <property name="geometry">
      <rect>
-      <x>250</x>
+      <x>270</x>
       <y>380</y>
       <width>89</width>
       <height>25</height>
@@ -127,7 +136,7 @@
    <widget class="QPushButton" name="goBack">
     <property name="geometry">
      <rect>
-      <x>250</x>
+      <x>270</x>
       <y>430</y>
       <width>89</width>
       <height>25</height>
@@ -143,7 +152,7 @@
      <number>300</number>
     </property>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QWidget" name="layoutWidget1">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -192,7 +201,7 @@
      <string>应用</string>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget2">
     <property name="geometry">
      <rect>
       <x>480</x>
@@ -282,7 +291,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1000</width>
      <height>22</height>
     </rect>
    </property>

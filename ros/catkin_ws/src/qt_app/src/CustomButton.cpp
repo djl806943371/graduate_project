@@ -171,7 +171,6 @@ void CustomButton::paintEvent(QPaintEvent *)
     painter.setBrush(linearGradient);
     //画按钮盘中心圆
     painter.drawEllipse(QPoint(0, 0), m_radius - m_arcLength + 4, m_radius - m_arcLength + 4);
-
     //画分割线
     int count = 4;
     for (int i = 0; i < count; i++)
@@ -189,9 +188,8 @@ void CustomButton::paintEvent(QPaintEvent *)
         painter.drawLine(0, 40, 0, m_radius - 5);
         painter.restore();
     }
-
-    linearGradient = QLinearGradient(0, mCenterRound.y() - m_radius + m_arcLength - 1, 0, mCenterRound.y() + m_radius - m_arcLength + 1);
     //设置渐变色
+    linearGradient = QLinearGradient(0, mCenterRound.y() - m_radius + m_arcLength - 1, 0, mCenterRound.y() + m_radius - m_arcLength + 1);
     linearGradient.setColorAt(0.0, colorExcircle0);
     linearGradient.setColorAt(0.5, colorExcircle5);
     linearGradient.setColorAt(0.9, colorExcircle9);
@@ -205,7 +203,7 @@ void CustomButton::paintEvent(QPaintEvent *)
         QMatrix leftmatrix;
         leftmatrix.rotate(-90);
         mDegreePixmap = mDegreePixmap.transformed(leftmatrix, Qt::SmoothTransformation);
-        painter.rotate(180-mCurWorkRegion);
+        painter.rotate(mCurAngle - 180);
         painter.drawPixmap(-60, -30, 30, 60, mDegreePixmap);
     }
 }
@@ -213,8 +211,7 @@ void CustomButton::paintEvent(QPaintEvent *)
 void CustomButton::addArc(int x, int y, int startAngle, int angleLength, QColor color)
 {
     //绘制矩形 m_radius = 90
-    //addArc(1,0,45, 90, mSectorColor);
-    //    QRectF(qreal left, qreal top, qreal width, qreal height);
+    //QRectF(qreal left, qreal top, qreal width, qreal height);
     QRectF rect(-m_radius + x, -m_radius + y, m_radius * 2, m_radius * 2);
 
     // 设置扇形路径;
@@ -249,7 +246,7 @@ void CustomButton::mousePressEvent(QMouseEvent *event)
             m_isMousePressed = true;
             //qDebug()<<"_________i = "<<i;
             update();
-            emit signalButtonClicked(i);
+            emit signalButtonClicked();
             break;
         }
     }
@@ -264,7 +261,7 @@ void CustomButton::mouseReleaseEvent(QMouseEvent *event)
         mCenterRound = QPoint(0, 0);
         mDegreePixmap = QPixmap(0, 0);
         //qDebug()<<"_________m_pressIndex = "<<m_pressIndex;
-        emit signalButtonReleased(m_pressIndex);
+        emit signalButtonReleased();
         update();
     }
 }
@@ -274,41 +271,18 @@ void CustomButton::mouseMoveEvent(QMouseEvent *event)
     if (m_isMousePressed)
     {
         mCenterRound = event->pos() - QPoint(width() >> 1, height() >> 1);
-
         int x = mCenterRound.x();
-        int y = -mCenterRound.y();
-        mCurWorkRegion = analysisAngle(x, y);
-
-//        if (angle > 45 && angle <= 135)
-//        {
-//            if (mAxesVertical == false)
-////                mCenterRound.setX(0);
-//            mCurWorkRegion = QUADRANT_UP;
-//        }
-//        else if (angle > 135 && angle <= 225)
-//        {
-//            if (mAxesVertical == false)
-////                mCenterRound.setY(0);
-//            mCurWorkRegion = QUADRANT_LEFT;
-//        }
-//        else if (angle > 225 && angle <= 315)
-//        {
-//            if (mAxesVertical == false)
-////                mCenterRound.setX(0);
-//            mCurWorkRegion = QUADRANT_DOWN;
-//        }
-//        else
-//        {
-//            if (mAxesVertical == false)
-////                mCenterRound.setY(0);
-//            mCurWorkRegion = QUADRANT_RIGHT;
-//        }
-
+        int y = mCenterRound.y();
+        mCurAngle = analysisAngle(x, y);
         int degree = static_cast<int>(qSqrt(qPow(x, 2) + qPow(y, 2)));
-        qDebug() << degree;
-
+        if (degree > m_radius)
+        {
+            degree = m_radius;
+            mCenterRound.setX(static_cast<int>(degree * qCos(static_cast<qreal>(mCurAngle * (2 * acos(-1)) / 360))));
+            mCenterRound.setY(static_cast<int>(degree * qSin(static_cast<qreal>(mCurAngle * (2 * acos(-1)) / 360))));
+        }
+        emit signalButtonMoved(degree, mCurAngle);
         mDegreePixmap = getPixmap(degree);
-
         update();
     }
 }

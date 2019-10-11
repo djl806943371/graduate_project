@@ -20,7 +20,7 @@ class CustomButton : public QWidget
 
 public:
     CustomButton(QWidget* parent = nullptr);
-    // ÉèÖÃ»¡³¤¼°°ë¾¶;
+    // è®¾ç½®å¼§é•¿åŠåŠå¾„;
     void setRadiusValue(int radius);
     void setArcLength(int arcLength);
     void drawRotatedText(QPainter *painter, float degrees, int x, int y, const QString &text);
@@ -28,7 +28,7 @@ public:
     QPixmap getPixmap(const int ping);
     QColor getColor(const int ping);
     int getLineNum(const int ping);
-    QPixmap getSignalPixmap(const QColor &color,const int lineNum);//»ñÈ¡ĞÅºÅÎ»Í¼
+    QPixmap getSignalPixmap(const QColor &color,const int lineNum);//è·å–ä¿¡å·ä½å›¾
 
     void setBeginDegree(int degree);
 
@@ -46,14 +46,14 @@ public:
     void setAxesVertical(bool axesVertical);
 
 private:
-    // ³õÊ¼»¯°´Å¥;
+    // åˆå§‹åŒ–æŒ‰é’®;
     void initButton();
-    // »æÖÆ°´Å¥;
+    // ç»˜åˆ¶æŒ‰é’®;
     void paintEvent(QPaintEvent *);
-    // Ìí¼ÓÔ²»¡;
+    // æ·»åŠ åœ†å¼§;
     void addArc(int x, int y, int startAngle, int angleLength, QColor color);
 
-    // Êó±êÊÂ¼ş;
+    // é¼ æ ‡äº‹ä»¶;
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
@@ -61,26 +61,28 @@ private:
     int analysisAngle(int x,int y);
 
 signals:
-    // Êó±êµã»÷;
-    void signalButtonClicked(int buttonId);
-    // Êó±êËÉ¿ª;
-    void signalButtonReleased(int buttonId);
+    // é¼ æ ‡ç‚¹å‡»;
+    void signalButtonClicked();
+    // é¼ æ ‡æ¾å¼€;
+    void signalButtonReleased();
+    // æŒ‰é’®æ‹–åŠ¨;
+    void signalButtonMoved(int degree, int angle);
 private:
-    // »¡³¤¼°°ë¾¶;
+    // å¼§é•¿åŠåŠå¾„;
     int m_radius, m_arcLength;
 
-    // Ô²»¡Â·¾¶;
+    // åœ†å¼§è·¯å¾„;
     QList<QPainterPath> m_arcPathList;
     QList<QPainterPath> m_textPathList;
-    // Ô²»¡ÑÕÉ«;
+    // åœ†å¼§é¢œè‰²;
     QList<QBrush> m_colorList;
-    // µ±Ç°Êó±ê°´Å¥/½øÈë °´Å¥µÄË÷Òı;
+    // å½“å‰é¼ æ ‡æŒ‰é’®/è¿›å…¥ æŒ‰é’®çš„ç´¢å¼•;
     int m_pressIndex, m_enterIndex;
-    // Êó±êÊÂ¼ş±êÖ¾Î»;
+    // é¼ æ ‡äº‹ä»¶æ ‡å¿—ä½;
     bool m_isMousePressed;
     bool m_isMouseEntered;
 
-    int mCurWorkRegion;
+    int mCurAngle;
 
     QPoint mCenterRound;
     QPixmap mDegreePixmap;
@@ -92,7 +94,7 @@ private:
     QColor mSectorColor;
 
 
-    //beijing·Ö¸îÏßÑÕÉ«
+    //beijingåˆ†å‰²çº¿é¢œè‰²
     QColor colorBKG = QColor(41, 44, 50);
     QColor colorSPL = QColor(32, 149, 216);
     QColor colorSectorUp2 = QColor(68, 68, 68);

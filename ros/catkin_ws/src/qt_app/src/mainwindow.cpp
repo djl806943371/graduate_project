@@ -24,7 +24,10 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent) : QMainWindow(par
                                                                  argv1(argv),
                                                                  m_settings(new SettingsDialog),
                                                                  m_serial(new QSerialPort(this)),
-                                                                 m_status(new QLabel)
+                                                                 m_status(new QLabel),
+                                                                 m_timer(new QTimer(this)),
+                                                                 m_degree(0),
+                                                                 m_angle(0)
 {
     ui->setupUi(this);
     ui->rpmSliderBar->setValue(100);
@@ -37,6 +40,7 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent) : QMainWindow(par
     connect(ui->actionDisconnect, &QAction::triggered, this, &MainWindow::closeSerialPort);
     connect(ui->actionClear, &QAction::triggered, this, &MainWindow::clearLog);
     connect(m_serial, &QSerialPort::readyRead, this, &MainWindow::readMyCom);
+    connect(m_timer, &QTimer::timeout, this, &MainWindow::on_rocker_signalButtonClicked);
 
     //    qDebug() << temp << " | "<< cmd;
 
@@ -175,7 +179,6 @@ void MainWindow::on_goFront_pressed()
     Singleton<command>::GetInstance()->ctlRpm(m_serial, 1, rpm);
 }
 
-
 void MainWindow::on_rpmSliderBar_valueChanged(int value)
 {
     ui->rpmEdit->setText(QString::number(value));
@@ -194,10 +197,32 @@ void MainWindow::on_accelerationSliderBar_valueChanged(int value)
 
 void MainWindow::on_applyButton_clicked()
 {
-    if(!m_serial->isOpen())
+    if (!m_serial->isOpen())
     {
         QMessageBox::critical(this, tr("错误"), tr("串口未打开"));
     }
     int acc = ui->accelerationSliderBar->value();
     Singleton<command>::GetInstance()->ctlAcc(m_serial, 1, acc);
+}
+
+void MainWindow::on_rocker_signalButtonMoved(int degree, int angle)
+{
+    m_degree = degree * 8192 / 3000;
+    m_angle = angle;
+}
+
+void MainWindow::on_rocker_signalButtonReleased()
+{
+    m_timer->stop();
+    m_degree = 0;
+    m_angle = 0;
+    Singleton<command>::GetInstance()->ctlRpm(m_serial, 1, m_degree);
+}
+
+void MainWindow::on_rocker_signalButtonClicked()
+{
+    if(m_angle < 180 && m_degree > 0)
+        m_degree *= -1;
+    Singleton<command>::GetInstance()->ctlRpm(m_serial, 1, m_degree);
+    m_timer->start(100);
 }
