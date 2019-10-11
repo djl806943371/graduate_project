@@ -39,21 +39,10 @@ static const quint16 crc16Table[] =
     0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
 };
 
-QString crc16ForModbus(const QString &hexText)
+class crc
 {
-    QByteArray data  = QByteArray::fromHex(hexText.toLocal8Bit());
-
-    quint8 buf;
-    quint16 crc16 = 0xFFFF;
-
-    for ( auto i = 0; i < data.size(); ++i )
-    {
-        buf = data.at( i ) ^ crc16;
-        crc16 >>= 8;
-        crc16 ^= crc16Table[ buf ];
-    }
-    crc16 = (crc16 >> 8) + (crc16 << 8);
-    return  QString("%1").arg(crc16 , 4, 16, QLatin1Char('0'));   //拼凑成4个16进制字符，空位补0
-}
+public:
+    QString getCrc16(const QString &hexText);
+};
 
 #endif // CRC_H

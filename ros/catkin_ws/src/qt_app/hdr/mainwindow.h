@@ -6,6 +6,9 @@
 #include "settingsdialog.h"
 #include <QSerialPort>
 #include <QLabel>
+#include "command.h"
+#include "crc.h"
+
 
 //class QLabel;
 
@@ -24,11 +27,22 @@ public:
 private slots:
     void openSerialPort();
     void closeSerialPort();
+    void clearLog();
     void on_pushButton_clicked(bool checked);
 
     void on_pushButton_2_pressed();
 
     void on_sendButton_clicked();
+
+    void on_goFront_pressed();
+
+    void on_rpmSliderBar_valueChanged(int value);
+
+    void on_goBack_pressed();
+
+    void on_accelerationSliderBar_valueChanged(int value);
+
+    void on_applyButton_clicked();
 
 private:
     Ui::MainWindow *ui;

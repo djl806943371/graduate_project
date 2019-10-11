@@ -7,16 +7,15 @@
 #include <qmath.h>
 
 CustomButton::CustomButton(QWidget* parent)
-    : QWidget(parent)
-    , m_pressIndex(0)
-    , m_enterIndex(0)
-    , m_isMouseEntered(false)
-    , m_isMousePressed(false)
-    , m_radius(80)
-    , m_arcLength(55)
-    , mCenterRound(QPoint(0,0))
+    : QWidget(parent),
+      m_radius(80),
+      m_arcLength(55),
+      m_pressIndex(0),
+      m_enterIndex(0),
+      m_isMousePressed(false),
+      m_isMouseEntered(false),
+      mCenterRound(QPoint(0,0))
 {
-    m_bTextModeEn = false;
     this->setMouseTracking(true);
 
     mSectorColor = QColor(38,38,38);
@@ -80,7 +79,7 @@ void CustomButton::drawRotatedText(QPainter *painter, float degrees, int x, int 
 {
     painter->save(); //保存原来坐标系统
     painter->translate(x, y); //平移坐标原点到 x， y
-    painter->rotate(degrees); //坐标旋转degrees 度
+    painter->rotate(static_cast<qreal>(degrees)); //坐标旋转degrees 度
     painter->drawText(0, 0, text); //在原点绘制文本
     painter->restore(); //回复原来的坐标系统
 }
@@ -158,14 +157,14 @@ void CustomButton::paintEvent(QPaintEvent *)
     painter.setBrush(QBrush(linearGradient));
     painter.drawEllipse(QPoint(0, 0), m_radius, m_radius);
 
-//    linearGradient = QLinearGradient(0, -35, 0, 35);
-//    linearGradient.setColorAt(0.5, QColor(24, 24, 24));
-//    linearGradient.setColorAt(0.9, QColor(53, 57, 63));
-//    painter.setBrush(QBrush(linearGradient));
-//    painter.drawEllipse(QPoint(0, 0), m_radius - m_arcLength+4, m_radius - m_arcLength+4);
+    //    linearGradient = QLinearGradient(0, -35, 0, 35);
+    //    linearGradient.setColorAt(0.5, QColor(24, 24, 24));
+    //    linearGradient.setColorAt(0.9, QColor(53, 57, 63));
+    //    painter.setBrush(QBrush(linearGradient));
+    //    painter.drawEllipse(QPoint(0, 0), m_radius - m_arcLength+4, m_radius - m_arcLength+4);
 
-//    painter.setBrush(QColor(17,17,17));
-//    painter.drawEllipse(QPoint(0, 0), m_radius - m_arcLength+2, m_radius - m_arcLength+2);
+    //    painter.setBrush(QColor(17,17,17));
+    //    painter.drawEllipse(QPoint(0, 0), m_radius - m_arcLength+2, m_radius - m_arcLength+2);
 
     QLinearGradient bgGradient(0, -37, 0, 37);
     bgGradient.setColorAt(0.0, colorbgGradient0);
@@ -201,11 +200,11 @@ void CustomButton::paintEvent(QPaintEvent *)
     painter.setBrush(QBrush(linearGradient));
     painter.drawEllipse(mCenterRound, m_radius - m_arcLength , m_radius - m_arcLength );
 
-//    linearGradient = QLinearGradient(0, mCenterRound.y() - m_radius + m_arcLength + 1, 0, mCenterRound.y() + m_radius - m_arcLength - 1);
-//    linearGradient.setColorAt(0.0, colorInnerCircle0);
-//    linearGradient.setColorAt(0.9, colorInnerCircle9);
-//    painter.setBrush(QBrush(linearGradient));
-//    painter.drawEllipse(mCenterRound, m_radius - m_arcLength -2, m_radius - m_arcLength -2);
+    //    linearGradient = QLinearGradient(0, mCenterRound.y() - m_radius + m_arcLength + 1, 0, mCenterRound.y() + m_radius - m_arcLength - 1);
+    //    linearGradient.setColorAt(0.0, colorInnerCircle0);
+    //    linearGradient.setColorAt(0.9, colorInnerCircle9);
+    //    painter.setBrush(QBrush(linearGradient));
+    //    painter.drawEllipse(mCenterRound, m_radius - m_arcLength -2, m_radius - m_arcLength -2);
 
 
 
@@ -236,7 +235,7 @@ void CustomButton::paintEvent(QPaintEvent *)
 void CustomButton::addArc(int x, int y, int startAngle, int angleLength, QColor color)
 {
     //绘制矩形 m_radius = 90
-
+//addArc(1,0,45, 90, mSectorColor);
     //    QRectF(qreal left, qreal top, qreal width, qreal height);
     QRectF rect(-m_radius+x, -m_radius+y, m_radius * 2, m_radius * 2);
 
@@ -280,7 +279,7 @@ void CustomButton::mousePressEvent(QMouseEvent *event)
 
 void CustomButton::mouseReleaseEvent(QMouseEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     if (m_isMousePressed)
     {
         m_isMousePressed = false;
@@ -308,19 +307,19 @@ void CustomButton::mouseMoveEvent(QMouseEvent *event)
             mCurWorkRegion = QUADRANT_UP;
         }else if(angle > 135 && angle <= 225){
             if(mAxesVertical == false)
-            mCenterRound.setY(0);
+                mCenterRound.setY(0);
             mCurWorkRegion = QUADRANT_LEFT;
         }else if(angle > 225 && angle <= 315){
             if(mAxesVertical == false)
-            mCenterRound.setX(0);
+                mCenterRound.setX(0);
             mCurWorkRegion = QUADRANT_DOWN;
         }else{
             if(mAxesVertical == false)
-            mCenterRound.setY(0);
+                mCenterRound.setY(0);
             mCurWorkRegion = QUADRANT_RIGHT;
         }
 
-        int degree = qSqrt(qPow(x,2)+qPow(y,2));
+        int degree = static_cast<int>(qSqrt(qPow(x,2)+qPow(y,2)));
         qDebug()<<degree;
 
         mDegreePixmap = getPixmap(degree);
@@ -369,7 +368,7 @@ int CustomButton::analysisAngle(int x,int y)
         {
             angle = 360 - angle;
         }
-        return angle;
+        return static_cast<int>(angle);
     }
 }
 

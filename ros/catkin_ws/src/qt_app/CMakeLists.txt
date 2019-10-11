@@ -4,10 +4,6 @@ project(qt_app)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
-
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
@@ -32,19 +28,22 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   /home/jiaolongdu/Qt/5.13.1/gcc_64/include
   /home/jiaolongdu/djl/graduate_project/ros/catkin_ws/src/qt_app/src/
+  /home/jiaolongdu/djl/graduate_project/ros/catkin_ws/src/qt_app/hdr/
 )
 
 set(SOURCES
   src/main.cpp
   src/mainwindow.cpp
-  src/mainwindow.h
+  hdr/mainwindow.h
   src/CustomButton.cpp
-  src/CustomButton.h
-  src/settingsdialog.h
+  hdr/CustomButton.h
+  hdr/settingsdialog.h
   src/settingsdialog.cpp
-  src/crc.h
-  src/command.h
+  hdr/crc.h
+  src/crc.cpp
+  hdr/command.h
   src/command.cpp
+  hdr/singleton.h
 )
 
 qt5_wrap_ui(WRAP_FILES

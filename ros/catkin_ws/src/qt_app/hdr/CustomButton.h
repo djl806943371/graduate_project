@@ -19,7 +19,7 @@ class CustomButton : public QWidget
     Q_OBJECT
 
 public:
-    CustomButton(QWidget* parent = NULL);
+    CustomButton(QWidget* parent = nullptr);
     // 设置弧长及半径;
     void setRadiusValue(int radius);
     void setArcLength(int arcLength);
@@ -30,7 +30,7 @@ public:
     int getLineNum(const int ping);
     QPixmap getSignalPixmap(const QColor &color,const int lineNum);//获取信号位图
 
-	void setBeginDegree(int degree);
+    void setBeginDegree(int degree);
 
 
 
@@ -38,10 +38,6 @@ public:
     void setStrLeft(QString str){mStrLeft = str;}
     void setStrDown(QString str){mStrDown = str;}
     void setStrRight(QString str){mStrRight = str;}
-
-    void setTextModeEn(bool mode){m_bTextModeEn = mode;}
-
-
     void setSPLcolor(QColor color){colorSPL = color;update();}
     void setSectorColor(QColor color){mSectorColor = color;update();}
     void setBKGcolor(QColor color){colorBKG = color;update();}
@@ -50,9 +46,9 @@ public:
     void setAxesVertical(bool axesVertical);
 
 private:
-     // 初始化按钮;
+    // 初始化按钮;
     void initButton();
-    // 绘制按钮; 
+    // 绘制按钮;
     void paintEvent(QPaintEvent *);
     // 添加圆弧;
     void addArc(int x, int y, int startAngle, int angleLength, QColor color);
@@ -93,9 +89,6 @@ private:
     QString mStrLeft;
     QString mStrDown;
     QString mStrRight;
-
-	bool m_bTextModeEn;
-
     QColor mSectorColor;
 
 
