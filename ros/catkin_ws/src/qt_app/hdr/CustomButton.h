@@ -80,7 +80,7 @@ private:
     bool m_isMousePressed;
     bool m_isMouseEntered;
 
-    QUADRANT_NUM mCurWorkRegion;
+    int mCurWorkRegion;
 
     QPoint mCenterRound;
     QPixmap mDegreePixmap;
