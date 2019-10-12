@@ -11,20 +11,20 @@ void setup() {
 }
 
 void loop() {
-//   put your main code here, to run repeatedly:
-  for(pos = 165; pos <= 175; pos += 1){
-    myservo.write(pos);
+////   put your main code here, to run repeatedly:
+//  for(pos = 165; pos <= 175; pos += 1){
+    myservo.write(90);
+////    Serial.println(pos);
+//    delay(200);
+//  }
+//      delay(2000);
+//      myservo.write(172);
+//    Serial.println(172);
+//  for(pos = 171; pos>=165; pos-=1) {
+//    myservo.write(pos);
 //    Serial.println(pos);
-    delay(200);
-  }
-      delay(2000);
-      myservo.write(172);
-    Serial.println(172);
-  for(pos = 171; pos>=165; pos-=1) {
-    myservo.write(pos);
-    Serial.println(pos);
-    delay(1000);
-  }
-  delay(2000);
-//  myservo.write(pos);
+//    delay(1000);
+//  }
+//  delay(2000);
+////  myservo.write(pos);
 }

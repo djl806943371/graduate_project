@@ -82,19 +82,22 @@ public:
         QString stringStopBits;
         QSerialPort::FlowControl flowControl;
         QString stringFlowControl;
-        bool localEchoEnabled;
     };
 
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
 
     Settings settings() const;
+    Settings settings_2() const;
 
 private slots:
     void showPortInfo(int idx);
+    void showPortInfo2(int idx);
     void apply();
     void checkCustomBaudRatePolicy(int idx);
     void checkCustomDevicePathPolicy(int idx);
+    void checkCustomBaudRatePolicy2(int idx);
+    void checkCustomDevicePathPolicy2(int idx);
 
 private:
     void fillPortsParameters();
@@ -103,8 +106,9 @@ private:
 
 private:
     Ui::SettingsDialog *m_ui = nullptr;
-    Settings m_currentSettings;
+    Settings m_currentSettings1, m_currentSettings2;
     QIntValidator *m_intValidator = nullptr;
+    int m_485Index = -1, m_arduinoIndex = -1;
 };
 
 #endif // SETTINGSDIALOG_H

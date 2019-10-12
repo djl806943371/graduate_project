@@ -50,6 +50,8 @@ private slots:
     void on_rocker_signalButtonReleased();
     void on_rocker_signalButtonClicked();
 
+    void on_sendButton_2_clicked();
+
 private:
     Ui::MainWindow *ui;
     int argc1;
@@ -58,6 +60,7 @@ private:
     ros::Subscriber chatter_subscriber;
     SettingsDialog *m_settings = nullptr;
     QSerialPort *m_serial = nullptr;
+    QSerialPort *m_serial_2 = nullptr;
     QLabel *m_status = nullptr;
     QTimer *m_timer = nullptr;
     int m_degree, m_angle;

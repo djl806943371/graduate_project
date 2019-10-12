@@ -24,6 +24,7 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent) : QMainWindow(par
                                                                  argv1(argv),
                                                                  m_settings(new SettingsDialog),
                                                                  m_serial(new QSerialPort(this)),
+                                                                 m_serial_2(new QSerialPort(this)),
                                                                  m_status(new QLabel),
                                                                  m_timer(new QTimer(this)),
                                                                  m_degree(0),
@@ -62,6 +63,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::openSerialPort()
 {
+    // 打开485串口
     const SettingsDialog::Settings p = m_settings->settings();
     m_serial->setPortName(p.name);
     m_serial->setBaudRate(p.baudRate);
@@ -85,6 +87,33 @@ void MainWindow::openSerialPort()
     else
     {
         QMessageBox::critical(this, tr("Error"), m_serial->errorString());
+
+        showStatusMessage(tr("Open error"));
+    }
+    // 打开arduino通信串口
+    const SettingsDialog::Settings p_2 = m_settings->settings_2();
+    m_serial_2->setPortName(p_2.name);
+    m_serial_2->setBaudRate(p_2.baudRate);
+    m_serial_2->setDataBits(p_2.dataBits);
+    m_serial_2->setParity(p_2.parity);
+    m_serial_2->setStopBits(p_2.stopBits);
+    m_serial_2->setFlowControl(p_2.flowControl);
+    if (m_serial_2->open(QIODevice::ReadWrite))
+    {
+        ui->actionConnect->setEnabled(false);
+        ui->actionDisconnect->setEnabled(true);
+        ui->actionConfigure->setEnabled(false);
+        showStatusMessage(tr("Connected to %1 : %2, %3, %4, %5, %6")
+                              .arg(p_2.name)
+                              .arg(p_2.stringBaudRate)
+                              .arg(p_2.stringDataBits)
+                              .arg(p_2.stringParity)
+                              .arg(p_2.stringStopBits)
+                              .arg(p_2.stringFlowControl));
+    }
+    else
+    {
+        QMessageBox::critical(this, tr("Error"), m_serial_2->errorString());
 
         showStatusMessage(tr("Open error"));
     }
@@ -163,6 +192,19 @@ void MainWindow::on_sendButton_clicked()
     ui->logWidget->setCurrentRow(ui->logWidget->count() - 1);
 }
 
+void MainWindow::on_sendButton_2_clicked()
+{
+    QString str = ui->sendEdit_2->text(); //��LineEdit�õ��ַ���
+//    str += Singleton<crc>::GetInstance()->getCrc16(str);
+    QByteArray sendData = QByteArray::fromHex(str.toLocal8Bit());
+    m_serial_2->write(sendData); //���͵�����
+    str.clear();
+    str = "Send:\t" + sendData.toHex().toUpper();
+    QListWidgetItem *listItem = new QListWidgetItem(str);
+    ui->logWidget_2->addItem(listItem);
+    ui->logWidget_2->setCurrentRow(ui->logWidget_2->count() - 1);
+}
+
 void MainWindow::readMyCom() //��ȡ���������
 {
     QByteArray receiveData = m_serial->readAll();
@@ -226,3 +268,5 @@ void MainWindow::on_rocker_signalButtonClicked()
     Singleton<command>::GetInstance()->ctlRpm(m_serial, 1, m_degree);
     m_timer->start(100);
 }
+
+
