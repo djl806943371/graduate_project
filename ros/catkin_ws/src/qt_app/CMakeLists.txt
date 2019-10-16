@@ -31,19 +31,23 @@ include_directories(
   /home/jiaolongdu/djl/graduate_project/ros/catkin_ws/src/qt_app/hdr/
 )
 
+set(HEADERS
+  hdr/mainwindow.h
+  hdr/CustomButton.h
+  hdr/settingsdialog.h
+  hdr/crc.h
+  hdr/command.h
+  hdr/singleton.h
+  hdr/settingparameters.h
+)
+
 set(SOURCES
   src/main.cpp
   src/mainwindow.cpp
-  hdr/mainwindow.h
   src/CustomButton.cpp
-  hdr/CustomButton.h
-  hdr/settingsdialog.h
   src/settingsdialog.cpp
-  hdr/crc.h
   src/crc.cpp
-  hdr/command.h
   src/command.cpp
-  hdr/singleton.h
 )
 
 qt5_wrap_ui(WRAP_FILES
@@ -80,7 +84,7 @@ catkin_package(
   CATKIN_DEPENDS roscpp std_msgs message_runtime
 )
 
-add_executable(${PROJECT_NAME}_node ${SOURCES} ${WRAP_FILES} ${RCC_FILES})
+add_executable(${PROJECT_NAME}_node ${HEADERS} ${SOURCES} ${WRAP_FILES} ${RCC_FILES})
 #add_executable(talker_node src/talker.cpp)
 #add_executable(listener_node src/listener.cpp)
 

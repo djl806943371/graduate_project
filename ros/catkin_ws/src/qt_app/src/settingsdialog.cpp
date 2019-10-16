@@ -40,15 +40,16 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
 
 SettingsDialog::~SettingsDialog()
 {
+    delete m_intValidator;
     delete m_ui;
 }
 
-SettingsDialog::Settings SettingsDialog::settings() const
+Settings SettingsDialog::settings() const
 {
     return m_currentSettings1;
 }
 
-SettingsDialog::Settings SettingsDialog::settings_2() const
+Settings SettingsDialog::settings_2() const
 {
     return m_currentSettings2;
 }
@@ -163,7 +164,7 @@ void SettingsDialog::fillPortsParameters()
     m_ui->baudRateBox_2->addItem(QStringLiteral("57600"), QSerialPort::Baud57600);
     m_ui->baudRateBox_2->addItem(QStringLiteral("115200"), QSerialPort::Baud115200);
     m_ui->baudRateBox_2->addItem(tr("Custom"));
-    m_ui->baudRateBox_2->setCurrentIndex(0);
+    m_ui->baudRateBox_2->setCurrentIndex(2);
 
     m_ui->dataBitsBox_2->addItem(QStringLiteral("5"), QSerialPort::Data5);
     m_ui->dataBitsBox_2->addItem(QStringLiteral("6"), QSerialPort::Data6);

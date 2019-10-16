@@ -1,4 +1,4 @@
-#ifndef COMMAND_H
+ï»¿#ifndef COMMAND_H
 #define COMMAND_H
 
 #include <QSerialPort>
@@ -10,9 +10,11 @@ class command
 public:
     command();
 
-    QString ctlRpm(QSerialPort *m_serial, qint8 device, int rpm);       //¿ØÖÆ×ªËÙ
-    QString ctlAcc(QSerialPort *m_serial, qint8 device, int acc);       //¿ØÖÆ¼ÓËÙ¶È
-
+    QString powerOn(QSerialPort *m_serial);
+    QString ctlRpm(QSerialPort *m_serial, qint8 device, int rpm);       //æŽ§åˆ¶è½¬é€Ÿ
+    QString ctlAcc(QSerialPort *m_serial, int acc);       //æŽ§åˆ¶åŠ é€Ÿåº¦
+    QString ctlAngle(QSerialPort *m_serial, qint8 device, int angle);   //æŽ§åˆ¶è§’åº¦
+    QString waitForResponse(QSerialPort *m_serial);
 };
 
 #endif // COMMAND_H

@@ -92,8 +92,8 @@
    <widget class="CustomButton" name="rocker">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>320</y>
+      <x>10</x>
+      <y>310</y>
       <width>250</width>
       <height>250</height>
      </rect>
@@ -111,8 +111,8 @@
    <widget class="QPushButton" name="goFront">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>380</y>
+      <x>280</x>
+      <y>410</y>
       <width>89</width>
       <height>25</height>
      </rect>
@@ -136,8 +136,8 @@
    <widget class="QPushButton" name="goBack">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>430</y>
+      <x>280</x>
+      <y>460</y>
       <width>89</width>
       <height>25</height>
      </rect>
@@ -152,100 +152,55 @@
      <number>300</number>
     </property>
    </widget>
-   <widget class="QPushButton" name="applyButton">
-    <property name="geometry">
-     <rect>
-      <x>580</x>
-      <y>470</y>
-      <width>89</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>应用</string>
-    </property>
-   </widget>
    <widget class="QWidget" name="layoutWidget2">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>400</y>
-      <width>319</width>
+      <x>490</x>
+      <y>470</y>
+      <width>481</width>
       <height>60</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="2,1,1">
+    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="3,1,1,1">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
-        <widget class="QSlider" name="rpmSliderBar">
-         <property name="minimum">
-          <number>-100</number>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="singleStep">
-          <number>2</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="accelerationSliderBar">
-         <property name="minimum">
-          <number>0</number>
-         </property>
-         <property name="maximum">
-          <number>10</number>
-         </property>
-         <property name="singleStep">
-          <number>2</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <widget class="QSlider" name="accelerationSliderBar">
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>1000</number>
+       </property>
+       <property name="singleStep">
+        <number>2</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <widget class="QLineEdit" name="rpmEdit">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="accelerationEdit">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <widget class="QLineEdit" name="accelerationEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>角速度rpm</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>加速度</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>加速度</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="applyButton">
+       <property name="text">
+        <string>应用</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -322,6 +277,64 @@
        </property>
        <property name="editTriggers">
         <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QPushButton" name="goLeftButton">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>360</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>左</string>
+    </property>
+    <property name="autoRepeat">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>550</y>
+      <width>391</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="5,1,0">
+     <item>
+      <widget class="QSlider" name="rpmSliderBar">
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>200</number>
+       </property>
+       <property name="singleStep">
+        <number>1</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="rpmEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>角速度rpm</string>
        </property>
       </widget>
      </item>

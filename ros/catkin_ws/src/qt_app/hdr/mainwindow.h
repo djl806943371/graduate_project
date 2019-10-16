@@ -1,4 +1,4 @@
-#ifndef MAINWINDOW_H
+﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
@@ -52,6 +52,10 @@ private slots:
 
     void on_sendButton_2_clicked();
 
+    void on_goLeftButton_pressed();
+
+    void on_goLeftButton_released();
+
 private:
     Ui::MainWindow *ui;
     int argc1;
@@ -70,7 +74,8 @@ private:
     void showStatusMessage(const QString &message);
     QByteArray QString2Hex(QString str);
     char ConvertHexChar(char ch);
-    void readMyCom();
+    void showMy485Recv(QString str);
+    void readMyCom_2();
 };
 
 #endif // MAINWINDOW_H

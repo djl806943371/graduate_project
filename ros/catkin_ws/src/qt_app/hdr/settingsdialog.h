@@ -53,7 +53,7 @@
 #define SETTINGSDIALOG_H
 
 #include <QDialog>
-#include <QSerialPort>
+#include "settingparameters.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -70,20 +70,6 @@ class SettingsDialog : public QDialog
     Q_OBJECT
 
 public:
-    struct Settings {
-        QString name;
-        qint32 baudRate;
-        QString stringBaudRate;
-        QSerialPort::DataBits dataBits;
-        QString stringDataBits;
-        QSerialPort::Parity parity;
-        QString stringParity;
-        QSerialPort::StopBits stopBits;
-        QString stringStopBits;
-        QSerialPort::FlowControl flowControl;
-        QString stringFlowControl;
-    };
-
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
 
