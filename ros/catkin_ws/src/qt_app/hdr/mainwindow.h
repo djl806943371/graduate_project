@@ -4,11 +4,12 @@
 #include <QMainWindow>
 #include "ros/ros.h"
 #include "settingsdialog.h"
-#include <QSerialPort>
 #include <QLabel>
 #include "command.h"
 #include "crc.h"
 #include <QTimer>
+#include <QVector>
+#include <serialportthread.h>
 
 //class QLabel;
 
@@ -24,6 +25,11 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(int argc, char *argv[], QWidget *parent = nullptr);
     ~MainWindow();
+signals:
+    void signalOpenSerialPort(Settings p1, Settings p2);
+    void signalCloseSerialPort();
+    void signalButtonMoved(double degree, double angle);
+    void signalChangeAcceleration(int acc);
 
 private slots:
     void openSerialPort();
@@ -33,28 +39,15 @@ private slots:
 
     void on_pushButton_2_pressed();
 
-    void on_sendButton_clicked();
-
-    void on_goFront_pressed();
-
-    void on_rpmSliderBar_valueChanged(int value);
-
-    void on_goBack_pressed();
-
     void on_accelerationSliderBar_valueChanged(int value);
 
     void on_applyButton_clicked();
 
     void on_rocker_signalButtonMoved(int degree, int angle);
-
-    void on_rocker_signalButtonReleased();
-    void on_rocker_signalButtonClicked();
-
-    void on_sendButton_2_clicked();
-
-    void on_goLeftButton_pressed();
-
-    void on_goLeftButton_released();
+    void restartTimer();
+    void openSerialPortSuccess();
+    void openSerialPortFail(QString str);
+    void showArduinoContent(QByteArray content);
 
 private:
     Ui::MainWindow *ui;
@@ -63,11 +56,15 @@ private:
     ros::Publisher chatter_publisher;
     ros::Subscriber chatter_subscriber;
     SettingsDialog *m_settings = nullptr;
-    QSerialPort *m_serial = nullptr;
-    QSerialPort *m_serial_2 = nullptr;
     QLabel *m_status = nullptr;
     QTimer *m_timer = nullptr;
-    int m_degree, m_angle;
+    double m_degree;
+    double m_angle;
+    QByteArray arduinoResponseData;
+    QVector<int> rpmVec;
+    QThread *thread;
+    serialportThread* serial = nullptr;
+    QTimer *period = nullptr;
 
     virtual void closeEvent(QCloseEvent *event);
 
@@ -75,7 +72,6 @@ private:
     QByteArray QString2Hex(QString str);
     char ConvertHexChar(char ch);
     void showMy485Recv(QString str);
-    void readMyCom_2();
 };
 
 #endif // MAINWINDOW_H

@@ -1,9 +1,11 @@
-#include "command.h"
+Ôªø#include "command.h"
 #include <QDebug>
 #include "singleton.h"
+#include <QTime>
 
 command::command()
 {
+    arduinoResponseData = "";
 }
 
 QString command::powerOn(QSerialPort *m_serial)
@@ -21,57 +23,66 @@ QString command::powerOn(QSerialPort *m_serial)
         QString temp = cmd.toHex() + Singleton<crc>::GetInstance()->getCrc16(cmd.toHex());
         cmd = (QByteArray::fromHex(temp.toLocal8Bit()));
         m_serial->write(cmd);
-        res += waitForResponse(m_serial) + "||";
+        res += waitFor485Response(m_serial) + "||";
     }
     return res;
 }
 
-QString command::ctlRpm(QSerialPort *m_serial, qint8 device, int rpm)
+QString command::stopMove(QSerialPort *m_serial, QSerialPort *m_serial_2)
 {
-    QByteArray cmd(6, 0x00);
-    cmd[0] = device;
-    cmd[1] = 0x06;
-    cmd[2] = 0x00;
-    cmd[3] = 0x11;
-    bool isNeedReverse = false;
-    if(rpm < 0)
-    {
-        isNeedReverse = true;
-        rpm *= (-1);
-    }
-    QByteArray rpmHex = QByteArray::fromHex(QByteArray::number(rpm, 16));
-    if(rpmHex.length() == 1)
-        cmd[5] = rpmHex[0];
-    else
-    {
-        cmd[4] = rpmHex[0];
-        cmd[5] = rpmHex[1];
-    }
-    if(isNeedReverse)
-    {
-        cmd[4] = ~cmd[4];
-        cmd[5] = ~cmd[5];
-    }
-    QString temp = cmd.toHex() + Singleton<crc>::GetInstance()->getCrc16(cmd.toHex());
-    cmd = QByteArray::fromHex(temp.toLocal8Bit());
-    m_serial->write(cmd);
-    return waitForResponse(m_serial);
+    QVector<int> rpmVec(4, 0);
+    ctlRpm(m_serial, rpmVec);
+    QString angles = "{0 0 0 0}";
+    ctlAngle(m_serial_2, angles);
+    return "";
 }
 
-QString command::ctlAngle(QSerialPort *m_serial, qint8 device, int angle)
+QString command::ctlRpm(QSerialPort *m_serial, QVector<int> rpmVec)
 {
-    //    QString temp = cmd.toHex() + Singleton<crc>::GetInstance()->getCrc16(cmd.toHex());
-    //    cmd = QByteArray::fromHex(temp.toLocal8Bit());
-    QByteArray tmp = QByteArray::number(angle);
-    if(tmp.size() == 1)
-        tmp.insert(0, "00");
-    else if (tmp.size() == 2)
-        tmp.insert(0, '0');
+    for(qint8 i = 0; i <4; i++)
+    {
+        rpm = rpmVec[i];
+        QByteArray cmd(6, 0x00);
+        cmd[0] = i;
+        cmd[1] = 0x06;
+        cmd[2] = 0x00;
+        cmd[3] = 0x11;
+        bool isNeedReverse = false;
+        if(rpm < 0)
+        {
+            isNeedReverse = true;
+            rpm *= (-1);
+        }
+        QByteArray rpmHex = QByteArray::fromHex(QByteArray::number(rpm, 16));
+        if(rpmHex.length() == 1)
+            cmd[5] = rpmHex[0];
+        else
+        {
+            cmd[4] = rpmHex[0];
+            cmd[5] = rpmHex[1];
+        }
+        if(isNeedReverse)
+        {
+            cmd[4] = ~cmd[4];
+            cmd[5] = ~cmd[5];
+        }
+        QString temp = cmd.toHex() + Singleton<crc>::GetInstance()->getCrc16(cmd.toHex());
+        cmd = QByteArray::fromHex(temp.toLocal8Bit());
+        m_serial->write(cmd);
+        waitFor485Response(m_serial);
+    }
+    return "Success";
+}
+
+QString command::ctlAngle(QSerialPort *m_serial, QString angles)
+{
+    QByteArray tmp = angles.toLatin1();
     m_serial->write(tmp);
-    return waitForResponse(m_serial);
+    m_serial->waitForBytesWritten(20);
+    return "";
 }
 
-//øÿ÷∆º”ÀŸ∂»
+//
 QString command::ctlAcc(QSerialPort *m_serial, int acc)
 {
     QString res = "Driver:";
@@ -88,7 +99,7 @@ QString command::ctlAcc(QSerialPort *m_serial, int acc)
         QString temp = cmd.toHex() + Singleton<crc>::GetInstance()->getCrc16(cmd.toHex());
         cmd = (QByteArray::fromHex(temp.toLocal8Bit()));
         m_serial->write(cmd);
-        QString tmp = waitForResponse(m_serial);
+        QString tmp = waitFor485Response(m_serial);
         if(tmp == "waitForReadyRead timeout" || tmp == "waitForBytesWritten timeout")
         {
             res += QString("%1 ").arg(device);
@@ -101,7 +112,7 @@ QString command::ctlAcc(QSerialPort *m_serial, int acc)
     return res;
 }
 
-QString command::waitForResponse(QSerialPort *m_serial)
+QString command::waitFor485Response(QSerialPort *m_serial)
 {
     if (m_serial->waitForBytesWritten(10))
     {

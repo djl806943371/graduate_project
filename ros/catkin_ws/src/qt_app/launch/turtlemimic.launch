@@ -1,7 +1,0 @@
-<launch>
- 
-   <node pkg="qt_app" name="talker" type="talker_node"/>
- 
-   <node pkg="qt_app" name="listener" type="listener_node"/>
- 
- </launch>

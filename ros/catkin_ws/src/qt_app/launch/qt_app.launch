@@ -1,0 +1,5 @@
+<launch>
+ 
+   <node pkg="qt_app" name="controller" type="qt_app_node"/>
+ 
+</launch>

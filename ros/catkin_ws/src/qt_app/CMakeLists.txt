@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+﻿cmake_minimum_required(VERSION 2.8.3)
 project(qt_app)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -39,6 +39,8 @@ set(HEADERS
   hdr/command.h
   hdr/singleton.h
   hdr/settingparameters.h
+  hdr/calculation.h
+  hdr/serialportthread.h
 )
 
 set(SOURCES
@@ -48,6 +50,8 @@ set(SOURCES
   src/settingsdialog.cpp
   src/crc.cpp
   src/command.cpp
+  src/calculation.cpp
+  src/serialportthread.cpp
 )
 
 qt5_wrap_ui(WRAP_FILES
@@ -84,7 +88,6 @@ catkin_package(
   CATKIN_DEPENDS roscpp std_msgs message_runtime
 )
 
-add_executable(${PROJECT_NAME}_node ${HEADERS} ${SOURCES} ${WRAP_FILES} ${RCC_FILES})
 #add_executable(talker_node src/talker.cpp)
 #add_executable(listener_node src/listener.cpp)
 
@@ -98,6 +101,7 @@ set(LIBRARIES ${LIBRARIES}
   Qt5::SerialBus
 )
 
-target_link_libraries(${PROJECT_NAME}_node
+add_executable(qt_app_node ${HEADERS} ${SOURCES} ${WRAP_FILES} ${RCC_FILES})
+target_link_libraries(qt_app_node
   ${LIBRARIES}
 )

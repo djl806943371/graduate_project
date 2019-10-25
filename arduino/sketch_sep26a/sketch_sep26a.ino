@@ -1,37 +1,77 @@
-  #include<Servo.h>
-Servo myservo;
-const int LED_PIN=12;
-uint8_t pos = 150;
-int p = 90;
-String comdata; 
+#include <Servo.h>
+Servo myservo_0, myservo_1, myservo_2, myservo_3;
+const int SERVO_PIN_0 = 9, SERVO_PIN_1 = 10, SERVO_PIN_2 = 11, SERVO_PIN_3 = 12;
+int pos[] = {90, 90, 90, 90}, pt = 0, posMid;
+String comdata, posStr = "";
+int test = 180;
 
-void setup() {
-  // put your setup code here, to run once:
-  myservo.attach(LED_PIN);
-  Serial.begin(19200);
-  Serial.setTimeout(50);
-  myservo.write(p);
-//  pinMode(LED_PIN, OUTPUT);
-}
-
-void loop() {
-  if(Serial.available() >= 3){
-    while (Serial.available() > 0){
-      comdata += char(Serial.read());  //每次读一个char字符，并相加
-      if(comdata.length() == 3)
-        break;
-    }
-    if (comdata.length() == 3){
-      p = comdata.toInt();      // 在串口数据流中查找一个有效整数。
-      myservo.write(p);
-      Serial.print(comdata);         //打印接收到的数字
-      comdata = "";
+void gradualChange(Servo ser, int pos){
+  int posNow = ser.read();
+  if(pos >= posNow){
+    for(int i = posNow; i <= pos; ++i){
+      ser.write(i);
     }
   }
-//  if (Serial.available() > 3) {   // 串口收到字符数大于零。
-//      p = Serial.parseInt();      // 在串口数据流中查找一个有效整数。
-//      myservo.write(p);
-//      Serial.print(p);         //打印接收到的数字
-//    }
-////  delay(2000);
+  else{
+    for(int i = posNow; i >= pos; --i){
+      ser.write(i);
+    }
+  }
+}
+
+void setup()
+{
+  // put your setup code here, to run once:
+  myservo_0.attach(SERVO_PIN_0);
+  myservo_1.attach(SERVO_PIN_1);
+  myservo_2.attach(SERVO_PIN_2);
+  myservo_3.attach(SERVO_PIN_3);
+  gradualChange(myservo_0, pos[0]);
+  gradualChange(myservo_1, pos[1]);
+  gradualChange(myservo_2, pos[2]);
+  gradualChange(myservo_3, pos[3]);
+  Serial.begin(57600);
+  Serial.setTimeout(50);
+  while(Serial.read() >= 0);
+}
+
+void loop()
+{
+  if (Serial.available() > 0)
+  {
+    comdata = Serial.readStringUntil('}');
+    comdata += '}';
+    if (comdata[0] == '{')
+    {
+      for (int i = 1; i < comdata.length(); ++i)  
+      {
+        if (comdata[i] == ' ' || comdata[i] == '}')
+        {
+          posMid = posStr.toInt();
+          pos[pt++] = long(150 - posMid) * 180L / 300;
+          posStr = "";
+          continue;
+        }
+        posStr += comdata[i];
+      }
+      if (pt == 4)
+      {
+        gradualChange(myservo_0, pos[0]);
+        gradualChange(myservo_1, pos[1]);
+        gradualChange(myservo_2, pos[2]);
+        gradualChange(myservo_3, pos[3]);
+        String tmp = String(pos[0]) + " " + String(pos[1]) + " " + String(pos[2]) + " " + String(pos[3]);
+        Serial.print(tmp + "ParseSuccess#");
+      }
+      else
+      {
+        Serial.print("ParseFail#");
+      }
+      pt = 0;
+    }
+    else
+    {
+      Serial.print("ReceiveFail#");
+    }
+  }
 }

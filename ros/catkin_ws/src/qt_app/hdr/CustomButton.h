@@ -1,4 +1,4 @@
-#ifndef CUSTOMBUTTON_H
+﻿#ifndef CUSTOMBUTTON_H
 #define CUSTOMBUTTON_H
 
 #include <QtWidgets/QWidget>

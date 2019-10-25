@@ -15,6 +15,8 @@
 #include <QDebug>
 #include <QMessageBox>
 #include "settingparameters.h"
+#include "calculation.h"
+#include <QMetaType>
 
 using namespace std;
 
@@ -23,49 +25,68 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent) : QMainWindow(par
                                                                  argc1(argc),
                                                                  argv1(argv),
                                                                  m_settings(new SettingsDialog),
-                                                                 m_serial(new QSerialPort(this)),
-                                                                 m_serial_2(new QSerialPort(this)),
                                                                  m_status(new QLabel),
                                                                  m_timer(new QTimer(this)),
-                                                                 m_degree(0),
-                                                                 m_angle(90)
+                                                                 m_degree(0.0),
+                                                                 m_angle(0.0),
+                                                                 thread(new QThread(this)),
+                                                                 serial(new serialportThread()),
+                                                                 period(new QTimer(this))
 {
     ui->setupUi(this);
-    ui->rpmSliderBar->setValue(100);
-    ui->rpmEdit->setText(QString::number(ui->rpmSliderBar->value()));
-    ui->accelerationSliderBar->setValue(5);
     ui->accelerationEdit->setText(QString::number(ui->accelerationSliderBar->value()));
     ui->statusBar->addWidget(m_status);
     connect(ui->actionConfigure, &QAction::triggered, m_settings, &SettingsDialog::show);
-    connect(ui->actionConnect, &QAction::triggered, this, &MainWindow::openSerialPort);
-    connect(ui->actionDisconnect, &QAction::triggered, this, &MainWindow::closeSerialPort);
     connect(ui->actionClear, &QAction::triggered, this, &MainWindow::clearLog);
 //    connect(m_serial, &QSerialPort::readyRead, this, &MainWindow::readMyCom);
-    connect(m_serial_2, &QSerialPort::readyRead, this, &MainWindow::readMyCom_2);
-    connect(m_timer, &QTimer::timeout, this, &MainWindow::on_rocker_signalButtonClicked);
+//    connect(m_serial_2, &QSerialPort::readyRead, this, &MainWindow::readMyCom_2);
+
+    //关联串口线程槽函数
+    //打开串口
+    connect(ui->actionConnect, &QAction::triggered, this, &MainWindow::openSerialPort);
+    qRegisterMetaType<Settings>("Settings");
+    connect(this, SIGNAL(signalOpenSerialPort(Settings, Settings)), serial, SLOT(openSerialPort(Settings, Settings)));
+    //打开串口成功
+    connect(serial, SIGNAL(openSerialPortSuccess()), this, SLOT(openSerialPortSuccess()));
+    //打开串口失败
+    connect(serial, SIGNAL(openSerialPortFail(QString)), this, SLOT(openSerialPortFail(QString)));
+    //关闭串口
+    connect(ui->actionDisconnect, &QAction::triggered, serial, &serialportThread::closeSerialPort);
+    connect(ui->actionDisconnect, &QAction::triggered, this, &MainWindow::closeSerialPort);
+    //摇杆释放
+    connect(ui->rocker, SIGNAL(signalButtonReleased()), serial, SLOT(customButtonReleased()));
+    //摇杆按住并移动
+    connect(this, SIGNAL(signalButtonMoved(double, double)), serial, SLOT(customButtonMoved(double, double)));
+    //定时器定时发送控制信号并轮询轮毂电机位置
+    connect(period, &QTimer::timeout, serial, &serialportThread::periodReadWrite);
+    connect(period, &QTimer::timeout, this, &MainWindow::restartTimer);
+    //修改加速度
+    connect(this, SIGNAL(signalChangeAcceleration(int)), serial, SLOT(changeAcceleration(int)));
+
+    connect(serial, SIGNAL(arduinoReceived(QByteArray)), this, SLOT(showArduinoContent(QByteArray)));
+    //串口发送命令全部移入新线程执行
+    serial->moveToThread(thread);
+    thread->start();
 
 }
 
 MainWindow::~MainWindow()
 {
     delete m_settings;
-    delete m_serial;
-    delete m_serial_2;
     delete m_status;
     delete m_timer;
     delete ui;
+}
+
+void MainWindow::restartTimer()
+{
+    period->start(100);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     Q_UNUSED(event)
     delete m_settings;
-    if (m_serial->isOpen())
-        m_serial->close();
-    if (m_serial_2->isOpen())
-        m_serial_2->close();
-    delete m_serial;
-    delete m_serial_2;
     delete m_status;
     delete m_timer;
     delete ui;
@@ -73,66 +94,44 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::openSerialPort()
 {
-    // 打开485串口
     const Settings p = m_settings->settings();
-    m_serial->setPortName(p.name);
-    m_serial->setBaudRate(p.baudRate);
-    m_serial->setDataBits(p.dataBits);
-    m_serial->setParity(p.parity);
-    m_serial->setStopBits(p.stopBits);
-    m_serial->setFlowControl(p.flowControl);
-    if (m_serial->open(QIODevice::ReadWrite))
-    {
-        ui->actionConnect->setEnabled(false);
-        ui->actionDisconnect->setEnabled(true);
-        ui->actionConfigure->setEnabled(false);
-        showStatusMessage(tr("Connected to DRIVERS : %1, %2, %3, %4, %5")
-                              .arg(p.stringBaudRate)
-                              .arg(p.stringDataBits)
-                              .arg(p.stringParity)
-                              .arg(p.stringStopBits)
-                              .arg(p.stringFlowControl));
-        showMy485Recv(Singleton<command>::GetInstance()->powerOn(m_serial));
-    }
-    else
-    {
-        QMessageBox::critical(this, tr("Error"), m_serial->errorString());
-        showStatusMessage(tr("Open error"));
-    }
-    // 打开arduino通信串口
     const Settings p_2 = m_settings->settings_2();
-    m_serial_2->setPortName(p_2.name);
-    m_serial_2->setBaudRate(p_2.baudRate);
-    m_serial_2->setDataBits(p_2.dataBits);
-    m_serial_2->setParity(p_2.parity);
-    m_serial_2->setStopBits(p_2.stopBits);
-    m_serial_2->setFlowControl(p_2.flowControl);
-    if (m_serial_2->open(QIODevice::ReadWrite))
-    {
-        ui->actionConnect->setEnabled(false);
-        ui->actionDisconnect->setEnabled(true);
-        ui->actionConfigure->setEnabled(false);
-        showStatusMessage(tr("%1   ||   Connected to ARDUINO : %2, %3, %4, %5, %6")
-                              .arg(m_status->text())
-                              .arg(p_2.stringBaudRate)
-                              .arg(p_2.stringDataBits)
-                              .arg(p_2.stringParity)
-                              .arg(p_2.stringStopBits)
-                              .arg(p_2.stringFlowControl));
-    }
-    else
-    {
-        QMessageBox::critical(this, tr("Error"), m_serial_2->errorString());
-        showStatusMessage(tr("Open error"));
-    }
+    emit signalOpenSerialPort(p, p_2);
+
+}
+
+void MainWindow::openSerialPortSuccess()
+{
+    ui->actionConnect->setEnabled(false);
+    ui->actionDisconnect->setEnabled(true);
+    ui->actionConfigure->setEnabled(false);
+    Settings p = m_settings->settings();
+    showStatusMessage(tr("Connected to DRIVERS : %1, %2, %3, %4, %5")
+                          .arg(p.stringBaudRate)
+                          .arg(p.stringDataBits)
+                          .arg(p.stringParity)
+                          .arg(p.stringStopBits)
+                          .arg(p.stringFlowControl));
+    p = m_settings->settings_2();
+    showStatusMessage(tr("%1   ||   Connected to ARDUINO : %2, %3, %4, %5, %6")
+                          .arg(m_status->text())
+                          .arg(p.stringBaudRate)
+                          .arg(p.stringDataBits)
+                          .arg(p.stringParity)
+                          .arg(p.stringStopBits)
+                          .arg(p.stringFlowControl));
+    period->start(1000);
+}
+
+void MainWindow::openSerialPortFail(QString str)
+{
+    QMessageBox::critical(this, tr("Error"), str);
+    showStatusMessage(tr("Open error"));
 }
 
 void MainWindow::closeSerialPort()
 {
-    if (m_serial->isOpen())
-        m_serial->close();
-    if (m_serial_2->isOpen())
-        m_serial_2->close();
+    period->stop();
     ui->actionConnect->setEnabled(true);
     ui->actionDisconnect->setEnabled(false);
     ui->actionConfigure->setEnabled(true);
@@ -190,35 +189,6 @@ void MainWindow::on_pushButton_2_pressed()
     return;
 }
 
-void MainWindow::on_sendButton_clicked()
-{
-    QString str = ui->sendEdit->text(); //��LineEdit�õ��ַ���
-    str += Singleton<crc>::GetInstance()->getCrc16(str);
-    QByteArray sendData = QByteArray::fromHex(str.toLocal8Bit());
-    m_serial->write(sendData); //���͵�����
-    str.clear();
-    str = "Send:\t" + sendData.toHex().toUpper();
-    QListWidgetItem *listItem = new QListWidgetItem(str);
-    ui->logWidget->addItem(listItem);
-    ui->logWidget->setCurrentRow(ui->logWidget->count() - 1);
-}
-
-void MainWindow::on_sendButton_2_clicked()
-{
-    QString str = ui->sendEdit_2->text();
-    QByteArray sendData = str.toLatin1();
-    if (sendData.size() == 1)
-        sendData.insert(0, "00");
-    else if (sendData.size() == 2)
-        sendData.insert(0, '0');
-    m_serial_2->write(sendData); //���͵�����
-    str.clear();
-    str = "Send:\t" + sendData.toUpper();
-    QListWidgetItem *listItem = new QListWidgetItem(str);
-    ui->logWidget_2->addItem(listItem);
-    ui->logWidget_2->setCurrentRow(ui->logWidget_2->count() - 1);
-}
-
 void MainWindow::showMy485Recv(QString str)
 {
     QListWidgetItem *listItem;
@@ -237,38 +207,12 @@ void MainWindow::showMy485Recv(QString str)
     ui->logWidget->setCurrentRow(ui->logWidget->count() - 1);
 }
 
-void MainWindow::readMyCom_2() //��ȡ���������
+void MainWindow::showArduinoContent(QByteArray content) //
 {
-    if (m_serial_2->bytesAvailable() >= 3)
-    {
-        QByteArray receiveData = m_serial_2->read(3);
-        QString str = "Receive:\t" + receiveData.toUpper();
-        QListWidgetItem *listItem = new QListWidgetItem(str);
-        listItem->setBackground(Qt::green);
-        ui->logWidget_2->addItem(listItem);
-        ui->logWidget_2->setCurrentRow(ui->logWidget_2->count() - 1);
-    }
-}
-
-void MainWindow::on_goFront_pressed()
-{
-    int rpm = ui->rpmSliderBar->value() * 8192 / 3000;
-    Singleton<command>::GetInstance()->ctlRpm(m_serial, 1, rpm);
-}
-
-void MainWindow::on_rpmSliderBar_valueChanged(int value)
-{
-    ui->rpmEdit->setText(QString::number(value));
-    //    if(m_angle < 180)
-    //        m_degree = - value * 8192 / 3000;
-    //    else
-    //        m_degree = value * 8192 / 3000;
-}
-
-void MainWindow::on_goBack_pressed()
-{
-    int rpm = (-1) * ui->rpmSliderBar->value() * 8192 / 3000;
-    Singleton<command>::GetInstance()->ctlRpm(m_serial, 1, rpm);
+    QListWidgetItem *listItem = new QListWidgetItem(content);
+    listItem->setBackground(Qt::green);
+    ui->logWidget_2->addItem(listItem);
+    ui->logWidget_2->setCurrentRow(ui->logWidget_2->count() - 1);
 }
 
 void MainWindow::on_accelerationSliderBar_valueChanged(int value)
@@ -278,81 +222,22 @@ void MainWindow::on_accelerationSliderBar_valueChanged(int value)
 
 void MainWindow::on_applyButton_clicked()
 {
-    if (!m_serial->isOpen())
-    {
-        QMessageBox::critical(this, tr("错误"), tr("串口未打开"));
-    }
-    int acc = ui->accelerationSliderBar->value();
-    showMy485Recv(Singleton<command>::GetInstance()->ctlAcc(m_serial, acc));
+    emit signalChangeAcceleration(ui->accelerationSliderBar->value());
 }
 
 void MainWindow::on_rocker_signalButtonMoved(int degree, int angle)
 {
     Q_UNUSED(degree)
-    qDebug() << angle;
     if (angle < 180)
     {
-        m_degree = -ui->rpmSliderBar->value() * 8192 / 3000;
-        m_angle = (angle + 60) * 180 / 300;
+        m_degree = -ui->velSpinBox->value() * 8192 / 3000;
+        angle += 180;
     }
     else
     {
-        m_degree = ui->rpmSliderBar->value() * 8192 / 3000;
-        m_angle = (angle - 180 + 60) * 180 / 300;
+        m_degree = ui->velSpinBox->value() * 8192 / 3000;
     }
-}
+    m_angle = 1.0 * (270 - angle) / 90 * ui->angleSpinBox->value();
 
-void MainWindow::on_rocker_signalButtonReleased()
-{
-    m_timer->stop();
-    //    m_degree = 0;
-    m_angle = 90;
-    showMy485Recv(Singleton<command>::GetInstance()->ctlRpm(m_serial, 1, 0));
-    Singleton<command>::GetInstance()->ctlAngle(m_serial_2, 1, m_angle);
-    showMy485Recv(Singleton<command>::GetInstance()->ctlRpm(m_serial, 2, 0));
-    Singleton<command>::GetInstance()->ctlAngle(m_serial_2, 2, m_angle);
-    //    showMy485Recv(Singleton<command>::GetInstance()->ctlRpm(m_serial, 3, 0));
-    //    Singleton<command>::GetInstance()->ctlAngle(m_serial_2, 3, m_angle);
-    showMy485Recv(Singleton<command>::GetInstance()->ctlRpm(m_serial, 4, 0));
-    Singleton<command>::GetInstance()->ctlAngle(m_serial_2, 4, m_angle);
-}
-
-void MainWindow::on_rocker_signalButtonClicked()
-{
-    showMy485Recv(Singleton<command>::GetInstance()->ctlRpm(m_serial, 2, m_degree));
-    Singleton<command>::GetInstance()->ctlAngle(m_serial_2, 2, m_angle);
-    showMy485Recv(Singleton<command>::GetInstance()->ctlRpm(m_serial, 1, m_degree));
-    Singleton<command>::GetInstance()->ctlAngle(m_serial_2, 1, m_angle);
-    //    QTime _Timer = QTime::currentTime().addMSecs(100);
-    //    while( QTime::currentTime() < _Timer );
-
-    //    showMy485Recv(Singleton<command>::GetInstance()->ctlRpm(m_serial, 3, m_degree));
-    //    Singleton<command>::GetInstance()->ctlAngle(m_serial_2, 3, m_angle);
-    showMy485Recv(Singleton<command>::GetInstance()->ctlRpm(m_serial, 4, m_degree));
-    Singleton<command>::GetInstance()->ctlAngle(m_serial_2, 4, m_angle);
-    m_timer->start(100);
-}
-
-void MainWindow::on_goLeftButton_pressed()
-{
-    QString str = "135";
-    QByteArray sendData = str.toLatin1();
-    m_serial_2->write(sendData); //
-    str.clear();
-    str = "Send:\t" + sendData.toUpper();
-    QListWidgetItem *listItem = new QListWidgetItem(str);
-    ui->logWidget_2->addItem(listItem);
-    ui->logWidget_2->setCurrentRow(ui->logWidget_2->count() - 1);
-}
-
-void MainWindow::on_goLeftButton_released()
-{
-    QString str = "90";
-    QByteArray sendData = str.toLatin1();
-    m_serial_2->write(sendData); //
-    str.clear();
-    str = "Send:\t" + sendData.toUpper();
-    QListWidgetItem *listItem = new QListWidgetItem(str);
-    ui->logWidget_2->addItem(listItem);
-    ui->logWidget_2->setCurrentRow(ui->logWidget_2->count() - 1);
+    emit signalButtonMoved(m_degree, m_angle);
 }
