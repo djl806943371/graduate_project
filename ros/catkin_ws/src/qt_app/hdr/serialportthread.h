@@ -27,6 +27,7 @@ signals:
     void openSerialPortSuccess();
     void openSerialPortFail(QString str);
     void arduinoReceived(QByteArray content);
+    void setAccSuccess();
 
 private:
     QSerialPort *m_serial = nullptr;

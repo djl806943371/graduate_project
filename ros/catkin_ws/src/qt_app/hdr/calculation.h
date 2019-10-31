@@ -14,6 +14,7 @@ public:
     calculation();
     QString calAngle(double v, double w);
     QVector<int> calVelocity(double v, double w);
+    double rpmToVelocity(int rpm);
 
 };
 

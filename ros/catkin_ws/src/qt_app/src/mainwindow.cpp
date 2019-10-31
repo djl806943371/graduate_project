@@ -8,14 +8,12 @@
 #include <QListWidgetItem>
 #include <geometry_msgs/Twist.h>
 #include <iostream>
-#include <QSerialPort>
+//#include <QSerialPort>
 #include <QtWidgets/QVBoxLayout>
 #include <QString>
-#include "singleton.h"
 #include <QDebug>
 #include <QMessageBox>
 #include "settingparameters.h"
-#include "calculation.h"
 #include <QMetaType>
 
 using namespace std;
@@ -62,6 +60,7 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent) : QMainWindow(par
     connect(period, &QTimer::timeout, this, &MainWindow::restartTimer);
     //修改加速度
     connect(this, SIGNAL(signalChangeAcceleration(int)), serial, SLOT(changeAcceleration(int)));
+    connect(serial, SIGNAL(setAccSuccess()), period, SLOT(start()));
 
     connect(serial, SIGNAL(arduinoReceived(QByteArray)), this, SLOT(showArduinoContent(QByteArray)));
     //串口发送命令全部移入新线程执行
@@ -80,7 +79,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::restartTimer()
 {
-    period->start(100);
+    period->start(250);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -222,6 +221,7 @@ void MainWindow::on_accelerationSliderBar_valueChanged(int value)
 
 void MainWindow::on_applyButton_clicked()
 {
+    period->stop();
     emit signalChangeAcceleration(ui->accelerationSliderBar->value());
 }
 
@@ -230,12 +230,12 @@ void MainWindow::on_rocker_signalButtonMoved(int degree, int angle)
     Q_UNUSED(degree)
     if (angle < 180)
     {
-        m_degree = -ui->velSpinBox->value() * 8192 / 3000;
+        m_degree = -ui->velSpinBox->value();
         angle += 180;
     }
     else
     {
-        m_degree = ui->velSpinBox->value() * 8192 / 3000;
+        m_degree = ui->velSpinBox->value();
     }
     m_angle = 1.0 * (270 - angle) / 90 * ui->angleSpinBox->value();
 

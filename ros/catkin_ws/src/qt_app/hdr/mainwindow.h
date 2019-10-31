@@ -5,8 +5,6 @@
 #include "ros/ros.h"
 #include "settingsdialog.h"
 #include <QLabel>
-#include "command.h"
-#include "crc.h"
 #include <QTimer>
 #include <QVector>
 #include <serialportthread.h>

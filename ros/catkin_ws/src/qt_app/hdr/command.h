@@ -17,7 +17,8 @@ public:
     QString ctlAngle(QSerialPort *m_serial, QString angles);   //控制角度
     QString stopMove(QSerialPort *m_serial, QSerialPort *m_serial_2);
     QString waitFor485Response(QSerialPort *m_serial);
-//    QString waitForArduinoResponse(QSerialPort *m_serial);
+    QVector<double> pollingSpeed(QSerialPort *m_serial);
+    QVector<double> pollingPose(QSerialPort *m_serial);
 
 private:
     QByteArray arduinoResponseData;

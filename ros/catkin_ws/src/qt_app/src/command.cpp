@@ -2,6 +2,8 @@
 #include <QDebug>
 #include "singleton.h"
 #include <QTime>
+#include <unistd.h>
+#include <calculation.h>
 
 command::command()
 {
@@ -23,6 +25,7 @@ QString command::powerOn(QSerialPort *m_serial)
         QString temp = cmd.toHex() + Singleton<crc>::GetInstance()->getCrc16(cmd.toHex());
         cmd = (QByteArray::fromHex(temp.toLocal8Bit()));
         m_serial->write(cmd);
+        m_serial->waitForBytesWritten(10);
         res += waitFor485Response(m_serial) + "||";
     }
     return res;
@@ -43,7 +46,7 @@ QString command::ctlRpm(QSerialPort *m_serial, QVector<int> rpmVec)
     {
         rpm = rpmVec[i];
         QByteArray cmd(6, 0x00);
-        cmd[0] = i;
+        cmd[0] = i+1;
         cmd[1] = 0x06;
         cmd[2] = 0x00;
         cmd[3] = 0x11;
@@ -69,6 +72,7 @@ QString command::ctlRpm(QSerialPort *m_serial, QVector<int> rpmVec)
         QString temp = cmd.toHex() + Singleton<crc>::GetInstance()->getCrc16(cmd.toHex());
         cmd = QByteArray::fromHex(temp.toLocal8Bit());
         m_serial->write(cmd);
+        m_serial->waitForBytesWritten(10);
         waitFor485Response(m_serial);
     }
     return "Success";
@@ -99,7 +103,9 @@ QString command::ctlAcc(QSerialPort *m_serial, int acc)
         QString temp = cmd.toHex() + Singleton<crc>::GetInstance()->getCrc16(cmd.toHex());
         cmd = (QByteArray::fromHex(temp.toLocal8Bit()));
         m_serial->write(cmd);
+        m_serial->waitForBytesWritten(10);
         QString tmp = waitFor485Response(m_serial);
+        qDebug() << "set acc:" << tmp;
         if(tmp == "waitForReadyRead timeout" || tmp == "waitForBytesWritten timeout")
         {
             res += QString("%1 ").arg(device);
@@ -114,27 +120,44 @@ QString command::ctlAcc(QSerialPort *m_serial, int acc)
 
 QString command::waitFor485Response(QSerialPort *m_serial)
 {
-    if (m_serial->waitForBytesWritten(10))
+    if (m_serial->waitForReadyRead(10))
     {
-        if (m_serial->waitForReadyRead(10))
-        {
-            QByteArray response_data = m_serial->readAll();
-//            while (m_serial->waitForReadyRead(2))
-//            {
-//                response_data += m_serial->readAll();
-//            }
-            return response_data.toHex();
-    //                emit sigRecvResponse(response_data);
-        }
-        else
-        {
-    //                emit sigCatchException("waitForReadyRead timeout");
-            return "waitForReadyRead timeout";
-        }
+        QByteArray response_data = m_serial->readAll();
+        return response_data.toHex();
     }
     else
+        return "waitForReadyRead timeout";
+}
+
+QVector<double> command::pollingSpeed(QSerialPort *m_serial){
+    QVector<double> vels;
+    for(qint8 device = 1; device <5; device++)
     {
-    //            emit sigCatchException("waitForBytesWritten timeout");
-        return "waitForBytesWritten timeout";
+        QByteArray cmd(6, 0x00);
+        cmd[0] = device;
+        cmd[1] = 0x03;
+        cmd[2] = 0x00;
+        cmd[3] = 0xF4;
+        cmd[4] = 0x00;
+        cmd[5] = 0x01;
+        QString temp = cmd.toHex() + Singleton<crc>::GetInstance()->getCrc16(cmd.toHex());
+        cmd = QByteArray::fromHex(temp.toLocal8Bit());
+        m_serial->write(cmd);
+        m_serial->waitForBytesWritten();
+        temp = waitFor485Response(m_serial);
+        qDebug() << temp;
+        temp = temp.mid(6, 4);
+        int rpm = temp.toInt(nullptr, 16);
+        if(rpm > (1 << 15))
+            rpm = - (~(rpm - 1));
+        double vel = Singleton<calculation>::GetInstance()->rpmToVelocity(rpm);
+
+        vels.push_back(vel);
+        if(device != 4)
+        {
+            QTime time = QTime::currentTime().addMSecs(50);
+            while(QTime::currentTime() < time);
+        }
     }
+    return vels;
 }

@@ -2,6 +2,7 @@
 #include "singleton.h"
 #include "calculation.h"
 #include "command.h"
+#include <QTime>
 
 serialportThread::serialportThread() : m_serial(new QSerialPort(this)),
                                        m_serial_2(new QSerialPort(this)),
@@ -70,12 +71,14 @@ void serialportThread::periodReadWrite(){
         Singleton<command>::GetInstance()->ctlRpm(m_serial, rpmVec);
         QString cmd = Singleton<calculation>::GetInstance()->calAngle(m_degree, m_angle);
         Singleton<command>::GetInstance()->ctlAngle(m_serial_2, cmd);
+
     }
     else
     {
         Singleton<command>::GetInstance()->stopMove(m_serial, m_serial_2);
     }
-
+//    Singleton<command>::GetInstance()->pollingPose(m_serial);
+    Singleton<command>::GetInstance()->pollingSpeed(m_serial);
 }
 
 void serialportThread::receiveArduino(){
@@ -90,5 +93,8 @@ void serialportThread::receiveArduino(){
 }
 
 void serialportThread::changeAcceleration(int acc){
+    QTime time = QTime::currentTime().addMSecs(40);
+    while(QTime::currentTime() < time);
     Singleton<command>::GetInstance()->ctlAcc(m_serial, acc);
+    emit setAccSuccess();
 }
