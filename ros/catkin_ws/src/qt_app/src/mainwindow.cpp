@@ -28,7 +28,7 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent) : QMainWindow(par
                                                                  m_degree(0.0),
                                                                  m_angle(0.0),
                                                                  thread(new QThread(this)),
-                                                                 serial(new serialportThread()),
+                                                                 serial(new serialportThread(argc, argv)),
                                                                  period(new QTimer(this))
 {
     ui->setupUi(this);
@@ -36,8 +36,6 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent) : QMainWindow(par
     ui->statusBar->addWidget(m_status);
     connect(ui->actionConfigure, &QAction::triggered, m_settings, &SettingsDialog::show);
     connect(ui->actionClear, &QAction::triggered, this, &MainWindow::clearLog);
-//    connect(m_serial, &QSerialPort::readyRead, this, &MainWindow::readMyCom);
-//    connect(m_serial_2, &QSerialPort::readyRead, this, &MainWindow::readMyCom_2);
 
     //关联串口线程槽函数
     //打开串口
@@ -60,7 +58,7 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent) : QMainWindow(par
     connect(period, &QTimer::timeout, this, &MainWindow::restartTimer);
     //修改加速度
     connect(this, SIGNAL(signalChangeAcceleration(int)), serial, SLOT(changeAcceleration(int)));
-    connect(serial, SIGNAL(setAccSuccess()), period, SLOT(start()));
+    connect(serial, SIGNAL(setAccSuccess()), this, SLOT(restartTimer()));
 
     connect(serial, SIGNAL(arduinoReceived(QByteArray)), this, SLOT(showArduinoContent(QByteArray)));
     //串口发送命令全部移入新线程执行
@@ -79,7 +77,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::restartTimer()
 {
-    period->start(250);
+    period->start(200);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -151,41 +149,6 @@ void MainWindow::showStatusMessage(const QString &message)
 void chatterCallback(const std_msgs::String::ConstPtr &msg)
 {
     ROS_INFO("I heard: [%s]", msg->data.c_str());
-}
-
-void MainWindow::on_pushButton_clicked(bool checked)
-{
-    if (checked)
-    {
-        ros::init(argc1, argv1, "test_gui");
-        if (!ros::master::check())
-        {
-            return;
-        }
-        ros::start(); // explicitly needed since our nodehandle is going out of scope.
-        ros::NodeHandle n;
-        ros::NodeHandle nSub;
-        // Add your ros communications here.
-        chatter_publisher = n.advertise<geometry_msgs::Twist>("/turtle1/cmd_vel", 1000);
-        //        chatter_subscriber = nSub.subscribe("testgui_chat", 100, chatterCallback);
-        return;
-    }
-    else
-        ros::shutdown();
-}
-
-void MainWindow::on_pushButton_2_pressed()
-{
-    geometry_msgs::Twist msg;
-    msg.linear.x = 2.0;
-    msg.linear.y = 0.0;
-    msg.linear.z = 0.0;
-    msg.angular.x = 0.0;
-    msg.angular.y = 0.0;
-    msg.angular.z = 1.8;
-    chatter_publisher.publish(msg);
-
-    return;
 }
 
 void MainWindow::showMy485Recv(QString str)

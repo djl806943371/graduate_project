@@ -56,7 +56,7 @@ QString command::ctlRpm(QSerialPort *m_serial, QVector<int> rpmVec)
             isNeedReverse = true;
             rpm *= (-1);
         }
-        QByteArray rpmHex = QByteArray::fromHex(QByteArray::number(rpm, 16));
+        QByteArray rpmHex = QByteArray::fromHex(QByteArray::number(rpm * 8192 / 3000, 16));
         if(rpmHex.length() == 1)
             cmd[5] = rpmHex[0];
         else
@@ -66,8 +66,8 @@ QString command::ctlRpm(QSerialPort *m_serial, QVector<int> rpmVec)
         }
         if(isNeedReverse)
         {
-            cmd[4] = ~cmd[4];
-            cmd[5] = ~cmd[5];
+            cmd[4] = (~cmd[4]) + 1;
+            cmd[5] = (~cmd[5]) + 1;
         }
         QString temp = cmd.toHex() + Singleton<crc>::GetInstance()->getCrc16(cmd.toHex());
         cmd = QByteArray::fromHex(temp.toLocal8Bit());
@@ -130,7 +130,7 @@ QString command::waitFor485Response(QSerialPort *m_serial)
 }
 
 QVector<double> command::pollingSpeed(QSerialPort *m_serial){
-    QVector<double> vels;
+    QVector<double> vels(4, 2000.0);
     for(qint8 device = 1; device <5; device++)
     {
         QByteArray cmd(6, 0x00);
@@ -145,19 +145,27 @@ QVector<double> command::pollingSpeed(QSerialPort *m_serial){
         m_serial->write(cmd);
         m_serial->waitForBytesWritten();
         temp = waitFor485Response(m_serial);
-        qDebug() << temp;
         temp = temp.mid(6, 4);
-        int rpm = temp.toInt(nullptr, 16);
-        if(rpm > (1 << 15))
-            rpm = - (~(rpm - 1));
-        double vel = Singleton<calculation>::GetInstance()->rpmToVelocity(rpm);
-
-        vels.push_back(vel);
+        qDebug() << temp;
+        if(temp != "rRea")
+        {
+            int rpm = temp.toInt(nullptr, 16);
+            if(rpm > (1 << 15))
+            {
+                rpm = rpm - 65535 - 1;
+            }
+            rpm = rpm * 3000 / 8192;
+            double vel = Singleton<calculation>::GetInstance()->rpmToVelocity(rpm);
+            vels[device - 1] = vel;
+//            qDebug() << vel;
+        }
         if(device != 4)
         {
-            QTime time = QTime::currentTime().addMSecs(50);
+            QTime time = QTime::currentTime().addMSecs(40);
             while(QTime::currentTime() < time);
         }
     }
+    vels[0] *= -1;
+    vels[3] *= -1;
     return vels;
 }

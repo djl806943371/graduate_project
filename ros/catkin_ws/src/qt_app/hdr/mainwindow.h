@@ -33,9 +33,6 @@ private slots:
     void openSerialPort();
     void closeSerialPort();
     void clearLog();
-    void on_pushButton_clicked(bool checked);
-
-    void on_pushButton_2_pressed();
 
     void on_accelerationSliderBar_valueChanged(int value);
 

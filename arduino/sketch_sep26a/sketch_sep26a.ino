@@ -60,8 +60,6 @@ void loop()
         gradualChange(myservo_1, pos[1]);
         gradualChange(myservo_2, pos[2]);
         gradualChange(myservo_3, pos[3]);
-        String tmp = String(pos[0]) + " " + String(pos[1]) + " " + String(pos[2]) + " " + String(pos[3]);
-        Serial.print(tmp + "ParseSuccess#");
       }
       else
       {

@@ -1,5 +1,7 @@
+<?xml version="1.0"?>
+
 <launch>
- 
-   <node pkg="qt_app" name="controller" type="qt_app_node"/>
- 
+
+  <node pkg="qt_app" name="controller" type="qt_app_node"/>
+  
 </launch>
