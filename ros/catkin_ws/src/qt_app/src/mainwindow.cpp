@@ -61,6 +61,10 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent) : QMainWindow(par
     connect(serial, SIGNAL(setAccSuccess()), this, SLOT(restartTimer()));
 
     connect(serial, SIGNAL(arduinoReceived(QByteArray)), this, SLOT(showArduinoContent(QByteArray)));
+
+    connect(this, SIGNAL(signalClearFault()), serial, SLOT(clearFault()));
+    connect(serial, SIGNAL(clearFaultSuccess()), this, SLOT(restartTimer()));
+
     //串口发送命令全部移入新线程执行
     serial->moveToThread(thread);
     thread->start();
@@ -203,4 +207,10 @@ void MainWindow::on_rocker_signalButtonMoved(int degree, int angle)
     m_angle = 1.0 * (270 - angle) / 90 * ui->angleSpinBox->value();
 
     emit signalButtonMoved(m_degree, m_angle);
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    period->stop();
+    emit signalClearFault();
 }

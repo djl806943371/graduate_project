@@ -31,6 +31,33 @@ QString command::powerOn(QSerialPort *m_serial)
     return res;
 }
 
+QString command::clearFault(QSerialPort *m_serial)
+{
+    QString res = "";
+    for(qint8 device = 1; device < 5; ++device)
+    {
+        QByteArray cmd(6, 0x00);
+        cmd[0] = device;
+        cmd[1] = 0x06;
+        cmd[2] = 0x00;
+        cmd[3] = 0x15;
+        cmd[4] = 0x00;
+        cmd[5] = 0x7F;
+        QString temp = cmd.toHex() + Singleton<crc>::GetInstance()->getCrc16(cmd.toHex());
+        cmd = (QByteArray::fromHex(temp.toLocal8Bit()));
+        m_serial->write(cmd);
+        m_serial->waitForBytesWritten(10);
+        res += waitFor485Response(m_serial) + "||";
+        if(device != 4)
+        {
+            QTime time = QTime::currentTime().addMSecs(40);
+            while(QTime::currentTime() < time);
+        }
+    }
+    powerOn(m_serial);
+    return res;
+}
+
 QString command::stopMove(QSerialPort *m_serial, QSerialPort *m_serial_2)
 {
     QVector<int> rpmVec(4, 0);
@@ -66,8 +93,8 @@ QString command::ctlRpm(QSerialPort *m_serial, QVector<int> rpmVec)
         }
         if(isNeedReverse)
         {
-            cmd[4] = (~cmd[4]) + 1;
-            cmd[5] = (~cmd[5]) + 1;
+            cmd[4] = (~cmd[4]) ;
+            cmd[5] = (~cmd[5]) ;
         }
         QString temp = cmd.toHex() + Singleton<crc>::GetInstance()->getCrc16(cmd.toHex());
         cmd = QByteArray::fromHex(temp.toLocal8Bit());
@@ -168,4 +195,29 @@ QVector<double> command::pollingSpeed(QSerialPort *m_serial){
     vels[0] *= -1;
     vels[3] *= -1;
     return vels;
+}
+
+void command::pollingStatus(QSerialPort *m_serial){
+    for(qint8 device = 1; device <5; device++)
+    {
+        QByteArray cmd(6, 0x00);
+        cmd[0] = device;
+        cmd[1] = 0x03;
+        cmd[2] = 0x00;
+        cmd[3] = 0xF1;
+        cmd[4] = 0x00;
+        cmd[5] = 0x01;
+        QString temp = cmd.toHex() + Singleton<crc>::GetInstance()->getCrc16(cmd.toHex());
+        cmd = QByteArray::fromHex(temp.toLocal8Bit());
+        m_serial->write(cmd);
+        m_serial->waitForBytesWritten();
+        temp = waitFor485Response(m_serial);
+        temp = temp.mid(6, 4);
+        qDebug() << temp;
+        if(device != 4)
+        {
+            QTime time = QTime::currentTime().addMSecs(40);
+            while(QTime::currentTime() < time);
+        }
+    }
 }

@@ -167,8 +167,12 @@ void serialportThread::receiveArduino()
 void serialportThread::changeAcceleration(int acc)
 {
     QTime time = QTime::currentTime().addMSecs(40);
-    while (QTime::currentTime() < time)
-        ;
+    while (QTime::currentTime() < time);
     Singleton<command>::GetInstance()->ctlAcc(m_serial, acc);
     emit setAccSuccess();
+}
+
+void serialportThread::clearFault(){
+    Singleton<command>::GetInstance()->clearFault(m_serial);
+    emit clearFaultSuccess();
 }

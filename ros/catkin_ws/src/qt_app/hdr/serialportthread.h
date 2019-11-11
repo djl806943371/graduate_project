@@ -25,12 +25,14 @@ public slots:
     void periodReadWrite();
     void receiveArduino();
     void changeAcceleration(int acc);
+    void clearFault();
 
 signals:
     void openSerialPortSuccess();
     void openSerialPortFail(QString str);
     void arduinoReceived(QByteArray content);
     void setAccSuccess();
+    void clearFaultSuccess();
 
 private:
     QSerialPort *m_serial = nullptr;

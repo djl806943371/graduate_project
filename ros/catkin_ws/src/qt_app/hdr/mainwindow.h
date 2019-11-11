@@ -28,6 +28,7 @@ signals:
     void signalCloseSerialPort();
     void signalButtonMoved(double degree, double angle);
     void signalChangeAcceleration(int acc);
+    void signalClearFault();
 
 private slots:
     void openSerialPort();
@@ -43,6 +44,8 @@ private slots:
     void openSerialPortSuccess();
     void openSerialPortFail(QString str);
     void showArduinoContent(QByteArray content);
+
+    void on_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;

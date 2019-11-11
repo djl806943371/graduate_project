@@ -18,7 +18,9 @@ public:
     QString stopMove(QSerialPort *m_serial, QSerialPort *m_serial_2);
     QString waitFor485Response(QSerialPort *m_serial);
     QVector<double> pollingSpeed(QSerialPort *m_serial);
+    void pollingStatus(QSerialPort *m_serial);
     QVector<double> pollingPose(QSerialPort *m_serial);
+    QString clearFault(QSerialPort *m_serial);
 
 private:
     QByteArray arduinoResponseData;
