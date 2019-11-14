@@ -24,7 +24,6 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent) : QMainWindow(par
                                                                  argv1(argv),
                                                                  m_settings(new SettingsDialog),
                                                                  m_status(new QLabel),
-                                                                 m_timer(new QTimer(this)),
                                                                  m_degree(0.0),
                                                                  m_angle(0.0),
                                                                  thread(new QThread(this)),
@@ -75,7 +74,9 @@ MainWindow::~MainWindow()
 {
     delete m_settings;
     delete m_status;
-    delete m_timer;
+    delete thread;
+    delete serial;
+    delete period;
     delete ui;
 }
 
@@ -89,7 +90,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
     Q_UNUSED(event)
     delete m_settings;
     delete m_status;
-    delete m_timer;
+    delete thread;
+    delete serial;
+    delete period;
     delete ui;
 }
 

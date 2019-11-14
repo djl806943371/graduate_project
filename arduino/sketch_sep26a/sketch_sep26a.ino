@@ -1,7 +1,7 @@
 #include <Servo.h>
 Servo myservo_0, myservo_1, myservo_2, myservo_3;
 const int SERVO_PIN_0 = 9, SERVO_PIN_1 = 10, SERVO_PIN_2 = 11, SERVO_PIN_3 = 12;
-int pos[] = {90, 90, 90, 90}, pt = 0, posMid;
+int pos[] = {90, 90, 90, 95}, pt = 0, posMid;
 String comdata, posStr = "";
 int test = 180;
 
@@ -59,7 +59,7 @@ void loop()
         gradualChange(myservo_0, pos[0]);
         gradualChange(myservo_1, pos[1]);
         gradualChange(myservo_2, pos[2]);
-        gradualChange(myservo_3, pos[3]);
+        gradualChange(myservo_3, pos[3] + 5);
       }
       else
       {

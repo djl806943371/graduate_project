@@ -55,7 +55,6 @@ private:
     ros::Subscriber chatter_subscriber;
     SettingsDialog *m_settings = nullptr;
     QLabel *m_status = nullptr;
-    QTimer *m_timer = nullptr;
     double m_degree;
     double m_angle;
     QByteArray arduinoResponseData;

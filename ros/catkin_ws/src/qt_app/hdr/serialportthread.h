@@ -52,9 +52,9 @@ private:
     double Vx;
     double Vy;
     double W;
-    ros::Time current_time, last_time;
-    ros::Publisher odom_pub;
-    tf::TransformBroadcaster *odom_broadcaster = nullptr;
+//    ros::Time current_time, last_time;
+//    ros::Publisher odom_pub;
+//    tf::TransformBroadcaster *odom_broadcaster = nullptr;
 };
 
 #endif // SERIALPORTTHREAD_H

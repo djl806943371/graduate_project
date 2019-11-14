@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>400</y>
+      <y>380</y>
       <width>250</width>
       <height>250</height>
      </rect>
@@ -36,8 +36,8 @@
    <widget class="QWidget" name="layoutWidget2">
     <property name="geometry">
      <rect>
-      <x>500</x>
-      <y>640</y>
+      <x>0</x>
+      <y>670</y>
       <width>481</width>
       <height>60</height>
      </rect>
@@ -46,16 +46,16 @@
      <item>
       <widget class="QSlider" name="accelerationSliderBar">
        <property name="minimum">
-        <number>0</number>
+        <number>200</number>
        </property>
        <property name="maximum">
-        <number>100</number>
+        <number>2000</number>
        </property>
        <property name="singleStep">
         <number>1</number>
        </property>
        <property name="value">
-        <number>50</number>
+        <number>1500</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -170,7 +170,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>660</y>
+      <y>640</y>
       <width>161</width>
       <height>41</height>
      </rect>
@@ -182,13 +182,13 @@
         <number>1</number>
        </property>
        <property name="maximum">
-        <double>3.000000000000000</double>
+        <double>2.000000000000000</double>
        </property>
        <property name="singleStep">
-        <double>0.200000000000000</double>
+        <double>0.100000000000000</double>
        </property>
        <property name="value">
-        <double>1.500000000000000</double>
+        <double>0.600000000000000</double>
        </property>
       </widget>
      </item>
@@ -205,7 +205,7 @@
     <property name="geometry">
      <rect>
       <x>190</x>
-      <y>660</y>
+      <y>640</y>
       <width>174</width>
       <height>41</height>
      </rect>
@@ -217,13 +217,13 @@
         <number>1</number>
        </property>
        <property name="maximum">
-        <double>6.000000000000000</double>
+        <double>3.000000000000000</double>
        </property>
        <property name="singleStep">
-        <double>0.200000000000000</double>
+        <double>0.100000000000000</double>
        </property>
        <property name="value">
-        <double>3.000000000000000</double>
+        <double>0.600000000000000</double>
        </property>
       </widget>
      </item>
@@ -239,7 +239,7 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>730</x>
+      <x>90</x>
       <y>370</y>
       <width>89</width>
       <height>25</height>

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <arg name="geotiff_map_file_path" default="$(find hector_geotiff)/maps"/>
+
+  <node pkg="rviz" type="rviz" name="rviz"
+    args="-d $(find laser_scan_matcher)/demo/demo_gmapping.rviz"/>
+
+  <include file="$(find hector_mapping)/launch/mapping_with_odom.launch"/>
+
+  <include file="$(find hector_geotiff)/launch/geotiff_mapper.launch">
+    <arg name="trajectory_source_frame_name" value="scanmatcher_frame"/>
+    <arg name="map_file_path" value="$(arg geotiff_map_file_path)"/>
+  </include>
+
+  <!-- laser_scan_matcher节点 -->
+  <node pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node" output="screen">
+    <param name="fixed_frame" value = "odom"/>
+    <param name="max_iterations" value="10"/>
+    <param name="base_frame" value = "base_link"/>
+    <param name="use_imu" value = "true"/>
+  </node>
+
+<!-- add hokuyo node myself -->
+  <node pkg="urg_node" type="urg_node" name="hokuyo_laser_node" />
+  <node pkg="qt_app" type="qt_app_node" name="control_node"/>
+</launch>
