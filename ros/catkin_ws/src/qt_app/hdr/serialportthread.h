@@ -52,6 +52,7 @@ private:
     double Vx;
     double Vy;
     double W;
+    int cnt;
 //    ros::Time current_time, last_time;
 //    ros::Publisher odom_pub;
 //    tf::TransformBroadcaster *odom_broadcaster = nullptr;

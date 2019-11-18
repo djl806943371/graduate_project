@@ -168,7 +168,6 @@ QVector<double> command::pollingSpeed(QSerialPort *m_serial){
         m_serial->waitForBytesWritten();
         temp = waitFor485Response(m_serial);
         temp = temp.mid(6, 4);
-        qDebug() << temp;
         if(temp != "rRea")
         {
             int rpm = temp.toInt(nullptr, 16);
@@ -207,7 +206,6 @@ void command::pollingStatus(QSerialPort *m_serial){
         m_serial->waitForBytesWritten();
         temp = waitFor485Response(m_serial);
         temp = temp.mid(6, 4);
-        qDebug() << temp;
         if(device != 4)
         {
             QTime time = QTime::currentTime().addMSecs(40);

@@ -6,15 +6,19 @@ slam_gmapping
 <launch>
 
   <!-- laser的topic名称，与自己的激光的topic相对应 -->
-  <arg name="scan_topic"  default="scan" />
+  <arg name="scan_topic"  default="scan_filtered" />
   <!-- 机器人的坐标系 -->
   <arg name="base_frame"  default="base_link"/>
   <!-- 世界坐标系 -->
   <arg name="odom_frame"  default="odom"/>
 
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
+      <rosparam command="load" file="$(find qt_app)/params/laser_filter.yaml" />
+  </node>
+
   <!-- tf发布节点 -->
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser" 
-    args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link /laser 40" />
+    args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link /laser 100" />
   <!-- 控制节点 -->
   <node pkg="qt_app" type="qt_app_node" name="control"/>
   <!-- 激光扫描节点 -->
@@ -27,7 +31,8 @@ slam_gmapping
     <param name="fixed_frame" value = "odom"/>
     <param name="max_iterations" value="10"/>
     <param name="base_frame" value = "base_link"/>
-    <param name="use_imu" value = "true"/>
+    <param name="use_imu" value = "false"/>
+    <remap from="scan" to="$(arg scan_topic)"/>
   </node>
   <!-- gmapping节点 -->
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
@@ -37,7 +42,7 @@ slam_gmapping
     <param name="map_update_interval" value="1"/>
     <!-- set maxUrange < maximum range of the real sensor <= maxRange -->
     <param name="maxUrange" value="6.0"/>
-    <param name="maxRange" value="8.0"/>
+    <param name="maxRange" value="8.6"/>
     <param name="sigma" value="0.05"/>
     <param name="kernelSize" value="1"/>
     <!-- optimize机器人移动的初始值（距离） -->

@@ -49,13 +49,13 @@
         <number>200</number>
        </property>
        <property name="maximum">
-        <number>2000</number>
+        <number>10000</number>
        </property>
        <property name="singleStep">
         <number>1</number>
        </property>
        <property name="value">
-        <number>1500</number>
+        <number>10000</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -182,13 +182,13 @@
         <number>1</number>
        </property>
        <property name="maximum">
-        <double>2.000000000000000</double>
+        <double>1.000000000000000</double>
        </property>
        <property name="singleStep">
         <double>0.100000000000000</double>
        </property>
        <property name="value">
-        <double>0.600000000000000</double>
+        <double>1.000000000000000</double>
        </property>
       </widget>
      </item>
@@ -223,7 +223,7 @@
         <double>0.100000000000000</double>
        </property>
        <property name="value">
-        <double>0.600000000000000</double>
+        <double>1.000000000000000</double>
        </property>
       </widget>
      </item>
