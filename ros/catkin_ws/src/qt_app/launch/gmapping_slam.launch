@@ -41,8 +41,8 @@ slam_gmapping
     <!-- 地图更新的一个间隔，两次scanmatch的间隔，地图更新也受scanmach的影响，如果scanmatch没有成功的话，是不会更新地图的 -->
     <param name="map_update_interval" value="1"/>
     <!-- set maxUrange < maximum range of the real sensor <= maxRange -->
-    <param name="maxUrange" value="6.0"/>
-    <param name="maxRange" value="8.6"/>
+    <param name="maxUrange" value="5.4"/>
+    <param name="maxRange" value="10.0"/>
     <param name="sigma" value="0.05"/>
     <param name="kernelSize" value="1"/>
     <!-- optimize机器人移动的初始值（距离） -->

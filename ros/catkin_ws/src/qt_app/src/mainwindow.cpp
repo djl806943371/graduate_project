@@ -22,15 +22,20 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent) : QMainWindow(par
                                                                  ui(new Ui::MainWindow),
                                                                  argc1(argc),
                                                                  argv1(argv),
+                                                                 radioButtonGroup(new QButtonGroup(this)),
                                                                  m_settings(new SettingsDialog),
                                                                  m_status(new QLabel),
                                                                  m_degree(0.0),
                                                                  m_angle(0.0),
                                                                  thread(new QThread(this)),
                                                                  serial(new serialportThread(argc, argv)),
-                                                                 period(new QTimer(this))
+                                                                 period(new QTimer(this)),
+                                                                 listen_cmd_thread(new QNode(argc1, argv1))
 {
     ui->setupUi(this);
+    radioButtonGroup->addButton(ui->mapping_RadioButton, 0);
+    radioButtonGroup->addButton(ui->navigation_RadioButton, 1);
+    connect(radioButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(modeChange(int)));
     ui->accelerationEdit->setText(QString::number(ui->accelerationSliderBar->value()));
     ui->statusBar->addWidget(m_status);
     connect(ui->actionConfigure, &QAction::triggered, m_settings, &SettingsDialog::show);
@@ -68,6 +73,9 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent) : QMainWindow(par
     serial->moveToThread(thread);
     thread->start();
 
+    connect(this, SIGNAL(signalStopNavigation()), listen_cmd_thread, SLOT(stopImmediately()));
+    connect(listen_cmd_thread, SIGNAL(cmd_vel(double, double)), serial, SLOT(customButtonMoved(double, double)));
+    connect(listen_cmd_thread, SIGNAL(rosShutdown()), serial, SLOT(customButtonReleased()));
 }
 
 MainWindow::~MainWindow()
@@ -77,6 +85,7 @@ MainWindow::~MainWindow()
     delete thread;
     delete serial;
     delete period;
+    delete listen_cmd_thread;
     delete ui;
 }
 
@@ -93,7 +102,44 @@ void MainWindow::closeEvent(QCloseEvent *event)
     delete thread;
     delete serial;
     delete period;
+    delete listen_cmd_thread;
     delete ui;
+}
+
+void MainWindow::modeChange(int index)
+{
+    switch (index) {
+        case 0:
+//            ui->rocker->setVisible(true);
+            ui->rocker->setEnabled(true);
+            ui->velSpinBox->setEnabled(true);
+            ui->angleSpinBox->setEnabled(true);
+            ui->label->setEnabled(true);
+            ui->label_4->setEnabled(true);
+            ui->accelerationSliderBar->setEnabled(true);
+            ui->accelerationEdit->setEnabled(true);
+            ui->label_2->setEnabled(true);
+            ui->applyButton->setEnabled(true);
+            qDebug()<<tr("切换为人工建图模式");
+            emit signalStopNavigation();
+            break;
+        case 1:
+//            ui->rocker->setVisible(false);
+            ui->rocker->setDisabled(true);
+            ui->velSpinBox->setDisabled(true);
+            ui->angleSpinBox->setDisabled(true);
+            ui->label->setDisabled(true);
+            ui->label_4->setDisabled(true);
+            ui->accelerationSliderBar->setDisabled(true);
+            ui->accelerationEdit->setDisabled(true);
+            ui->label_2->setDisabled(true);
+            ui->applyButton->setDisabled(true);
+            qDebug()<<tr("切换为自动导航模式");
+            listen_cmd_thread->init();
+            break;
+        default:
+            break;
+        }
 }
 
 void MainWindow::openSerialPort()
@@ -194,7 +240,6 @@ void MainWindow::on_applyButton_clicked()
     period->stop();
     emit signalChangeAcceleration(ui->accelerationSliderBar->value());
 }
-
 void MainWindow::on_rocker_signalButtonMoved(int degree, int angle)
 {
     Q_UNUSED(degree)

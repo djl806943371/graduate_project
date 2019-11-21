@@ -43,6 +43,7 @@ set(HEADERS
   hdr/calculation.h
   hdr/serialportthread.h
   hdr/sigwatcher.h
+  hdr/qnode.h
 )
 
 set(SOURCES
@@ -55,6 +56,7 @@ set(SOURCES
   src/calculation.cpp
   src/serialportthread.cpp
   src/sigwatcher.cpp
+  src/qnode.cpp
 )
 
 qt5_wrap_ui(WRAP_FILES

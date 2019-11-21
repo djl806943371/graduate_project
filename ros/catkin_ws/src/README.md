@@ -6,9 +6,10 @@
     cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr/local . 
     make 
     sudo make install
-安装完成后catkin_make 安装 scan_tools
+安装完成后catkin_make
 
 安装navigation包需要先:
-    sudo apt install libsdl1.2-dev
-    sudo apt install libsdl-image1.2-dev
+    sudo apt install ros-melodic-navigation
+
+解决包依赖问题:
     rosdep install --from-paths src --ignore-src -r -y

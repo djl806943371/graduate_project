@@ -95,7 +95,7 @@ QString command::ctlRpm(QSerialPort *m_serial, QVector<int> rpmVec)
         cmd = QByteArray::fromHex(temp.toLocal8Bit());
         m_serial->write(cmd);
         m_serial->waitForBytesWritten(10);
-        qDebug() << waitFor485Response(m_serial);
+        waitFor485Response(m_serial);
     }
     return "Success";
 }

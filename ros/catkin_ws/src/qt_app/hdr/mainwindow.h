@@ -2,12 +2,15 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "ros/ros.h"
+//#include "ros/ros.h"
 #include "settingsdialog.h"
 #include <QLabel>
 #include <QTimer>
 #include <QVector>
 #include <serialportthread.h>
+#include <QButtonGroup>
+#include "qnode.h"
+
 
 //class QLabel;
 
@@ -29,30 +32,27 @@ signals:
     void signalButtonMoved(double degree, double angle);
     void signalChangeAcceleration(int acc);
     void signalClearFault();
+    void signalStopNavigation();
 
-private slots:
+public slots:
+    void modeChange(int index);
     void openSerialPort();
     void closeSerialPort();
     void clearLog();
-
     void on_accelerationSliderBar_valueChanged(int value);
-
     void on_applyButton_clicked();
-
     void on_rocker_signalButtonMoved(int degree, int angle);
     void restartTimer();
     void openSerialPortSuccess();
     void openSerialPortFail(QString str);
     void showArduinoContent(QByteArray content);
-
     void on_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;
     int argc1;
     char **argv1;
-    ros::Publisher chatter_publisher;
-    ros::Subscriber chatter_subscriber;
+    QButtonGroup* radioButtonGroup;
     SettingsDialog *m_settings = nullptr;
     QLabel *m_status = nullptr;
     double m_degree;
@@ -62,13 +62,14 @@ private:
     QThread *thread;
     serialportThread* serial = nullptr;
     QTimer *period = nullptr;
+    QNode *listen_cmd_thread = nullptr;
 
     virtual void closeEvent(QCloseEvent *event);
-
     void showStatusMessage(const QString &message);
     QByteArray QString2Hex(QString str);
     char ConvertHexChar(char ch);
     void showMy485Recv(QString str);
+
 };
 
 #endif // MAINWINDOW_H

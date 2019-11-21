@@ -15,20 +15,23 @@
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser" 
     args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link /laser 100" />
   <!-- 控制节点 -->
-  <node pkg="qt_app" type="qt_app_node" name="control"/>
+  <node pkg="qt_app" type="qt_app_node" name="control_node"/>
   <!-- 激光扫描节点 -->
   <node pkg="urg_node" type="urg_node" name="hokuyo_laser_node" /> 
   <!-- rviz节点 -->
   <node pkg="rviz" type="rviz" name="rviz" 
-    args="-d $(find laser_scan_matcher)/demo/demo_gmapping.rviz"/>
+    args="-d $(find qt_app)/config/navigation.rviz"/>
   <!-- laser_scan_matcher节点 -->
   <node pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node" output="screen">
     <param name="fixed_frame" value = "odom"/>
     <param name="max_iterations" value="10"/>
-    <param name="base_frame" value = "base_link"/>
-    <param name="use_imu" value = "false"/>
+    <param name="base_frame" value = "base_link"/>
+    <param name="use_imu" value = "false"/>
     <remap from="scan" to="$(arg scan_topic)"/>
   </node>
+  <!-- 地图发布节点 -->
+  <node pkg="map_server" type="map_server" name="map_publisher" 
+    args="$(find qt_app)/config/my_office.yaml"/>
   
   <node pkg="amcl" type="amcl" name="amcl">
     <param name="use_map_topic"             value="$(arg use_map_topic)"/>
@@ -36,7 +39,7 @@
     <param name="odom_model_type"           value="diff"/>
     <param name="odom_alpha5"               value="0.1"/>
     <param name="gui_publish_rate"          value="10.0"/>
-    <param name="laser_max_beams"             value="60"/>
+    <param name="laser_max_beams"           value="60"/>
     <param name="laser_max_range"           value="12.0"/>
     <param name="min_particles"             value="500"/>
     <param name="max_particles"             value="2000"/>
