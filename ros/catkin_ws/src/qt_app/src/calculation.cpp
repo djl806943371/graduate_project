@@ -56,7 +56,6 @@ QVector<int> calculation::calAngle(double v, double w)
     else
         angle = static_cast<qint8>(atan(Vy / Vx) * 360 / (2 * acos(-1)));
     res.push_back(angle);
-//    qDebug() << res;
     return res;
 }
 QVector<int> calculation::calVelocity(double v, double w)

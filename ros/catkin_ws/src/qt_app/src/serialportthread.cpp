@@ -91,8 +91,6 @@ void serialportThread::periodReadWrite()
 {
     if (isMoved)
     {
-        if(m_angle>0.5)
-            qDebug() << m_angle;
         rpmVec = Singleton<calculation>::GetInstance()->calVelocity(m_degree, m_angle);
         Singleton<command>::GetInstance()->ctlRpm(m_serial, rpmVec);
         angleVec = Singleton<calculation>::GetInstance()->calAngle(m_degree, m_angle);
