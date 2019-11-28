@@ -1,8 +1,10 @@
 <launch> 
-
+  <!-- imu传感器launch文件 -->
+  <!-- <include file="$(find razor_imu_9dof)/launch/razor-pub.launch"/>
+  <node pkg="tf" type="static_transform_publisher" name="base_imu_link_to_base_link" 
+      args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link /base_imu_link 100" /> -->
     <!-- Run the EKF Localization node -->
     <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization">
-        <rosparam command="load" file="$(find qt_app)/config/ekf_localization.yaml"/>
+        <rosparam command="load" file="$(find qt_app)/config/efk_localization.yaml"/>
     </node>
-
 </launch>

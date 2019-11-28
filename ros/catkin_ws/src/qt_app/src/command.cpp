@@ -47,7 +47,7 @@ QString command::clearFault(QSerialPort *m_serial)
         cmd = (QByteArray::fromHex(temp.toLocal8Bit()));
         m_serial->write(cmd);
         m_serial->waitForBytesWritten(10);
-        qDebug() << "clear fault" << waitFor485Response(m_serial);
+        waitFor485Response(m_serial);
     }
     powerOn(m_serial);
     return res;
@@ -95,7 +95,7 @@ QString command::ctlRpm(QSerialPort *m_serial, QVector<int> rpmVec)
         cmd = QByteArray::fromHex(temp.toLocal8Bit());
         m_serial->write(cmd);
         m_serial->waitForBytesWritten(10);
-        qDebug() << waitFor485Response(m_serial);
+        waitFor485Response(m_serial);
     }
     return "Success";
 }
@@ -191,7 +191,7 @@ QVector<double> command::pollingSpeed(QSerialPort *m_serial){
 }
 
 void command::pollingStatus(QSerialPort *m_serial){
-    for(qint8 device = 1; device <5; device++)
+    for(qint8 device = 0; device <4; device++)
     {
         QByteArray cmd(6, 0x00);
         cmd[0] = device;

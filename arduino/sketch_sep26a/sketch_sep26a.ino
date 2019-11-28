@@ -10,11 +10,13 @@ void gradualChange(Servo ser, int pos){
   if(pos >= posNow){
     for(int i = posNow; i <= pos; ++i){
       ser.write(i);
+      delay(2);
     }
   }
   else{
     for(int i = posNow; i >= pos; --i){
       ser.write(i);
+      delay(2);
     }
   }
 }
@@ -60,6 +62,7 @@ void loop()
         gradualChange(myservo_1, pos[1]);
         gradualChange(myservo_2, pos[2]);
         gradualChange(myservo_3, pos[3]);
+        Serial.print("ParseSuccess#");
       }
       else
       {
